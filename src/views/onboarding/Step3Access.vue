@@ -5,6 +5,9 @@ import { useOnboardingStore } from '@/stores/onboarding.store'
 import { updateStep3 } from '@/api/onboarding.api'
 import Multiselect from '@vueform/multiselect'
 import '@vueform/multiselect/themes/default.css'
+import { useForm, useField } from 'vee-validate'
+import * as yup from 'yup'
+
 
 // import { debounce } from '@/utils/debounce'
 
@@ -15,12 +18,62 @@ if (!store.onboardingId) {
     router.push('/onboarding/step-1')
 }
 
-const form = reactive({
-    communication_tools: [],
-    technical_tools: [],
-    access_level: '',
-    specific_zones: [],
+const step3Schema = yup.object({
+    communication_tools: yup
+        .array()
+        .of(yup.string())
+        .min(1, 'Pilih minimal 1 communication tool'),
+
+    technical_tools: yup
+        .array()
+        .of(yup.string())
+        .min(1, 'Pilih minimal 1 technical tool'),
+
+    access_level: yup
+        .string()
+        .required('Access level wajib dipilih'),
+
+    specific_zones: yup
+        .array()
+        .of(yup.string())
+        .min(1, 'Pilih minimal 1 zone'),
 })
+
+const {
+    handleSubmit,
+    values,
+    errors,
+    setValues,
+} = useForm({
+    validationSchema: step3Schema,
+    validateOnMount: false,
+    validateOnBlur: false,
+    validateOnChange: false,
+    validateOnInput: false,
+})
+
+const { value: communication_tools } = useField('communication_tools', undefined, {
+    initialValue: [],
+})
+
+const { value: technical_tools } = useField('technical_tools', undefined, {
+    initialValue: [],
+})
+
+const { value: access_level } = useField('access_level')
+
+const { value: specific_zones } = useField('specific_zones', undefined, {
+    initialValue: [],
+})
+
+
+
+// const form = reactive({
+//     communication_tools: [],
+//     technical_tools: [],
+//     access_level: '',
+//     specific_zones: [],
+// })
 
 const files = ref([])
 
@@ -28,49 +81,36 @@ function handleFiles(event) {
     files.value = Array.from(event.target.files)
 }
 
-async function saveDraft() {
+const saveDraft = async () => {
     if (!store.onboardingId) return
-
 
     const formData = new FormData()
 
-    // Access rights
-    formData.append('access_level', form.access_level)
+    formData.append('access_level', values.access_level || '')
 
-    form.communication_tools.forEach(v =>
+    values.communication_tools?.forEach(v =>
         formData.append('communication_tools[]', v)
     )
 
-    form.technical_tools.forEach(v =>
+    values.technical_tools?.forEach(v =>
         formData.append('technical_tools[]', v)
     )
 
-    form.specific_zones.forEach(v =>
+    values.specific_zones?.forEach(v =>
         formData.append('specific_zones[]', v)
     )
 
-    // Files
     files.value.forEach(file =>
         formData.append('evidences[]', file)
     )
 
-    console.log(form);
-    console.log(files);
-    for (let pair of formData.entries()) {
-        console.log(pair[0], pair[1])
-    }
-
     try {
         await updateStep3(store.onboardingId, formData)
     } catch (err) {
-        if (err.response) {
-            console.error('Status:', err.response.status)
-            console.error('Validation errors:', err.response.data)
-        } else {
-            console.error(err)
-        }
+        console.error(err)
     }
 }
+
 
 // const autoSave = debounce(() => {
 //   saveDraft()
@@ -84,12 +124,12 @@ async function saveDraft() {
 //     saveDraft()
 // })
 
-async function goNext() {
+const goNext = handleSubmit(async () => {
     await saveDraft()
     router.push('/onboarding/preview')
-}
+})
 
-async function goBack() {
+const goBack = async () => {
     await saveDraft()
     router.push('/onboarding/step-2')
 }
@@ -103,15 +143,17 @@ async function goBack() {
             <fieldset>
                 <legend>System Access</legend>
 
-                <label>
-                    <Multiselect v-model="form.communication_tools" mode="tags" :options="['Slack', 'Email']" />
+                <label>Communication Tools</label>
+                <Multiselect v-model="communication_tools" mode="tags" :options="['Slack', 'Email']" />
+                <span class="error-message">
+                    {{ errors.communication_tools }}
+                </span>
 
-                </label>
-
-                <label>
-                    <Multiselect v-model="form.technical_tools" mode="tags" :options="['GitHub', 'Postman']" />
-
-                </label>
+                <label>Technical Tools</label>
+                <Multiselect v-model="technical_tools" mode="tags" :options="['GitHub', 'Postman']" />
+                <span class="error-message">
+                    {{ errors.technical_tools }}
+                </span>
             </fieldset>
 
             <fieldset>
@@ -119,22 +161,24 @@ async function goBack() {
 
                 <div>
                     <label>Access Level</label>
-                    <select v-model="form.access_level">
+                    <select v-model="access_level">
                         <option value="">Select</option>
                         <option>Low</option>
                         <option>Medium</option>
                         <option>High</option>
                     </select>
+                    <span class="error-message">
+                        {{ errors.access_level }}
+                    </span>
                 </div>
 
                 <div>
                     <label>Specific Zones</label>
-                    <Multiselect v-model="form.specific_zones" mode="tags" :close-on-select="false" :searchable="true"
-                        :options="[
-                            'Office',
-                            'Server Room',
-                            'Warehouse'
-                        ]" />
+                    <Multiselect v-model="specific_zones" mode="tags"
+                        :options="['Office', 'Server Room', 'Warehouse']" />
+                    <span class="error-message">
+                        {{ errors.specific_zones }}
+                    </span>
                 </div>
             </fieldset>
 
