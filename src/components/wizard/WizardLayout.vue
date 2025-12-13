@@ -30,7 +30,7 @@ function submit() {
 
     <nav>
       <ol>
-        <li>Step 1 - Personal Information</li>
+        <li><router-link to="/onboarding/step-1">Step 1 - Personal Information</router-link></li>
         <li>Step 2 - Job Details</li>
         <li>Step 3 - Access Rights & Evidence</li>
         <li>Step 4 - Preview & Confirmation</li>
@@ -41,7 +41,7 @@ function submit() {
       <router-view />
     </main>
 
-    <footer>
+    <!-- <footer>
       <button type="button" @click="goBack">
         Back
       </button>
@@ -57,6 +57,6 @@ function submit() {
       <button type="button" @click="submit">
         Submit
       </button>
-    </footer>
+    </footer> -->
   </div>
 </template>

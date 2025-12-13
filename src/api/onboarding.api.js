@@ -6,8 +6,10 @@ export const createDraft = (payload) =>
 export const updateStep2 = (id, payload) =>
   api.put(`/onboardings/${id}/step-2`, payload)
 
-export const updateStep3 = (id, payload) =>
-  api.put(`/onboardings/${id}/step-3`, payload)
+export const updateStep3 = (id, payload) => {
+  payload.append('_method', 'PUT')
+  api.post(`/onboardings/${id}/step-3`, payload)
+}
 
 export const submitOnboarding = (id) =>
   api.post(`/onboardings/${id}/submit`)
