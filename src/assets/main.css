@@ -1,36 +1,314 @@
+@import 'tailwindcss';
 
-/* @import './base.css';
+/* TODO: Components */
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
+/* ! Scrollbar */
+
+::-webkit-scrollbar {
+  @apply w-[6px];
 }
 
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
+::-webkit-scrollbar-track {
+  @apply bg-[#f1f1f1] rounded-[10px];
 }
 
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
+::-webkit-scrollbar-thumb {
+  @apply bg-[#888] rounded-[10px];
 }
 
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-[#555];
+}
 
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
+/* ! Containers */
+
+.container {
+  @apply w-full px-24 pt-8 mx-auto;
+}
+
+/* .container {
+    @apply w-full max-w-[800px] px-24 pt-8 mx-auto;
+} */
+
+.container-content {
+  @apply py-6 px-10 bg-white rounded-md mb-8 shadow-md;
+}
+
+.container-content h3 {
+  @apply font-medium text-xl text-start;
+}
+
+.container-content label {
+  @apply font-medium text-lg text-gray-500 mb-2;
+}
+
+.container-content .label-user {
+  @apply font-medium text-lg text-gray-900 m-0;
+}
+
+.container-action {
+  @apply flex flex-row justify-between items-center;
+}
+
+.container-content p,
+.container-content address,
+.container-content small {
+  /* @apply font-normal text-base not-italic text-gray-800; */
+}
+
+/* ! Separator */
+
+.h-separator {
+  @apply w-full h-[2px] bg-gray-300 rounded-full my-4;
+}
+
+/* ! Button */
+
+.btn {
+  @apply flex px-3 py-1.5 gap-2 w-fit rounded-md transition-colors duration-150;
+}
+
+.btn-link {
+  @apply no-underline font-medium transition-all;
+}
+
+.btn-link:hover {
+  @apply underline;
+}
+
+.btn-primary {
+  @apply bg-blue-500 text-white rounded-md shadow-md;
+}
+
+.btn-primary:hover {
+  @apply bg-blue-600;
+}
+
+.btn-warning {
+  @apply bg-red-500 text-white rounded-md shadow-md text-white;
+}
+
+.btn-warning:hover {
+  @apply bg-red-600;
+}
+
+.btn-disabled:hover {
+  @apply bg-gray-600 cursor-not-allowed;
+}
+
+.btn-secondary {
+  @apply bg-neutral-100 text-gray-800 font-normal rounded-md shadow-xs border border-neutral-300;
+}
+
+.btn-secondary:hover {
+  @apply bg-neutral-200;
+}
+
+.btn-danger:hover {
+  @apply bg-red-500 text-white rounded-md shadow-md;
+}
+
+.btn-action {
+  @apply flex flex-row text-blue-600 hover:text-blue-900;
+}
+
+.btn-action.disabled {
+  @apply flex flex-row text-gray-600 cursor-not-allowed;
+}
+
+.btn-action.disabled .btn-action-icon {
+  @apply stroke-gray-600;
+}
+
+.btn-action-icon {
+  @apply w-4 transition-colors stroke-blue-600;
+}
+
+.status-read {
+  @apply text-xs py-1 px-4 inline-block rounded-full mx-auto;
+}
+
+.status-read.read {
+  @apply bg-green-500 text-white;
+}
+
+.status-read.unread {
+  @apply bg-yellow-500 text-white;
+}
+
+/* ! Text Field */
+.field {
+  @apply w-full p-1 border-2 ring-0 rounded-sm border-neutral-200 transition-colors duration-300 mb-2 outline-none bg-white;
+}
+
+.field:hover {
+  @apply border-transparent ring-2 ring-blue-500;
+}
+
+.field-row {
+  @apply flex flex-row justify-between gap-4;
+}
+
+.label-field {
+  @apply font-medium text-lg text-gray-900;
+}
+
+.label-field.req::after {
+  @apply text-red-500 after:ml-1;
+  content: '*';
+}
+
+.field-password {
+  @apply float-right relative mt-[-38px] mr-2 cursor-pointer;
+}
+
+.field-nik {
+  @apply float-right relative ml-2 cursor-pointer;
+}
+
+.field-password svg {
+  @apply stroke-gray-600;
+}
+
+.field-password svg:hover {
+  @apply stroke-blue-600;
+}
+
+.error-message {
+  @apply font-medium text-red-500;
+}
+
+.success-message {
+  @apply font-medium text-green-500;
+}
+
+/* ! Table */
+
+.table {
+  @apply w-full border-separate border-spacing-0 bg-white overflow-hidden text-sm text-gray-800;
+}
+
+.table th {
+  @apply font-semibold text-start bg-gray-100 text-gray-900 px-4 py-2 border-gray-200;
+}
+
+.table td {
+  @apply px-4 py-2 border-b border-gray-200;
+}
+
+.table-hover tbody tr {
+  @apply transition-colors duration-150;
+}
+
+.table-hover tbody tr:hover {
+  @apply bg-gray-100;
+}
+
+.table-responsive {
+  @apply w-full overflow-x-auto;
+}
+
+.table-responsive::-webkit-scrollbar {
+  height: 6px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background-color: rgb(209 213 219);
+  border-radius: 9999px;
+}
+
+/* ! Sidebar */
+
+.main {
+  @apply ml-[var(--sidebar-width)];
+}
+
+.sidebar {
+  @apply w-[var(--sidebar-width)];
+}
+
+.sidebar ul {
+  @apply w-full;
+}
+
+.sidebar-group .sidebar-toggle {
+  @apply w-full cursor-pointer p-2;
+}
+
+.btn-sidebar {
+  @apply w-full inline-flex gap-2 text-gray-900 font-medium p-2 rounded-md transition-colors duration-150;
+}
+
+.btn-sidebar:hover {
+  @apply bg-blue-500 text-white;
+}
+
+.btn-sidebar.btn-danger:hover {
+  @apply bg-red-500 text-white;
+}
+
+.btn-sidebar.btn-disabled:hover {
+  @apply bg-gray-300 text-white;
+}
+
+.sidebar-group .btn-sidebar {
+  @apply pl-10;
+}
+
+.sidebar-toggle.btn-sidebar {
+  @apply pl-2;
+}
+
+body.sidebar-collapsed .sidebar {
+  @apply w-[var(--sidebar-collapsed-width)];
+}
+
+body.sidebar-collapsed .main {
+  @apply ml-[var(--sidebar-collapsed-width)];
+}
+
+body.sidebar-collapsed .sidebar-title,
+body.sidebar-collapsed .btn-logout-text,
+body.sidebar-collapsed .btn-sidebar-text {
+  @apply hidden;
+}
+
+/* ! Dashboard component */
+
+.dashboard__title {
+  @apply flex flex-row justify-between items-center mb-4;
+}
+
+.dashboard__title h2 {
+  @apply font-medium text-3xl mb-2;
+}
+
+.dashboard__action {
+  @apply flex flex-row items-center gap-2;
+}
+
+.dashboard__create {
+  @apply flex flex-row items-center gap-2 mt-2;
+}
+
+/* TODO: End of components section */
+
+:root {
+  --gutter: 32px;
+  --sidebar-width: 280px;
+  --sidebar-collapsed-width: 76px;
+}
+
+html,
+body {
+  scrollbar-gutter: stable;
+  /* overflow-x: hidden !important; */
+}
+
+* {
+  scroll-behavior: smooth;
+}
+/* 
+body {
+  background-color: #f3f4f6;
 } */

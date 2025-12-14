@@ -1,38 +1,37 @@
 <script setup>
+import Stepper from 'primevue/stepper'
+import StepList from 'primevue/steplist'
+import Step from 'primevue/step'
+
 const props = defineProps({
     steps: {
         type: Array,
         required: true,
     },
+    modelValue: {
+        type: String,
+        required: true,
+    },
 })
+
+const emit = defineEmits(['update:modelValue', 'request-step-change'])
+
+const onUpdateValue = (newValue) => {
+    const step = props.steps.find(s => String(s.step) === newValue)
+    if (!step || !step.enabled) return
+
+    // ❗ JANGAN update modelValue di sini
+    // kita minta izin dulu ke wizard
+    emit('request-step-change', step)
+}
 </script>
 
 <template>
-    <nav class="wizard-steps">
-        <ol>
-            <li v-for="s in steps" :key="s.step">
-                <router-link v-if="s.enabled" :to="s.path">
-                    Step {{ s.step }} - {{ s.label }}
-                </router-link>
-
-                <span v-else class="disabled">
-                    Step {{ s.step }} - {{ s.label }}
-                </span>
-            </li>
-        </ol>
-    </nav>
+    <Stepper :value="modelValue" @update:value="onUpdateValue">
+        <StepList>
+            <Step v-for="step in steps" :key="step.step" :value="String(step.step)" :disabled="!step.enabled">
+                {{ step.label }}
+            </Step>
+        </StepList>
+    </Stepper>
 </template>
-
-<style scoped>
-.wizard-steps ol {
-    display: flex;
-    gap: 16px;
-    list-style: none;
-    padding: 0;
-}
-
-.disabled {
-    color: #aaa;
-    cursor: not-allowed;
-}
-</style>

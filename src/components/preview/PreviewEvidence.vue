@@ -1,4 +1,7 @@
 <script setup>
+import Panel from 'primevue/panel'
+import DataView from 'primevue/dataview'
+
 defineProps({
     files: {
         type: Array,
@@ -8,12 +11,15 @@ defineProps({
 </script>
 
 <template>
-    <section v-if="files.length">
-        <h3>Evidence Files</h3>
-        <ul>
-            <li v-for="(file, i) in files" :key="i">
-                {{ file.original_name }}
-            </li>
-        </ul>
-    </section>
+    <Panel header="Evidence Files" v-if="files.length">
+        <DataView :value="files">
+            <template #list="{ items }">
+                <ul>
+                    <li v-for="(file, i) in items" :key="i">
+                        {{ file.original_name }}
+                    </li>
+                </ul>
+            </template>
+        </DataView>
+    </Panel>
 </template>

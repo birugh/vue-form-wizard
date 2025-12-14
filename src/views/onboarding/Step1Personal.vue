@@ -4,8 +4,12 @@ import { useForm, useField } from 'vee-validate'
 import * as yup from 'yup'
 import { useOnboardingStore } from '@/stores/onboarding.store'
 
+// PrimeVue
+import InputText from 'primevue/inputtext'
+import { Message } from 'primevue'
+
 // =======================
-// 1️⃣ Schema (tetap di step)
+// 1️⃣ Schema
 // =======================
 const schema = yup.object({
     name: yup.string().required('Name wajib diisi'),
@@ -39,7 +43,7 @@ const { value: emergency_contact } = useField('emergency_contact')
 const store = useOnboardingStore()
 
 // =======================
-// 3️⃣ Load existing draft
+// 3️⃣ Load draft
 // =======================
 onMounted(() => {
     if (!store.onboarding?.personal_information) return
@@ -47,7 +51,7 @@ onMounted(() => {
 })
 
 // =======================
-// 4️⃣ EXPOSE CONTRACT KE WIZARD
+// 4️⃣ Contract ke Wizard
 // =======================
 defineExpose({
     async validateStep() {
@@ -64,40 +68,30 @@ defineExpose({
     <section>
         <h2>Step 1 - Personal Information</h2>
 
-        <form>
-            <div>
+        <form class="flex justify-center flex-col gap-4">
+            <div class="flex flex-col gap-1">
                 <label>Name</label>
-                <input type="text" v-model="name" />
-                <span class="error-message">{{ errors.name }}</span>
+                <InputText v-model="name" />
+                <Message v-if="errors.name" severity="error" size="small" variant="simple">{{ errors.name }}</Message>
             </div>
 
-            <div>
+            <div class="flex flex-col gap-1">
                 <label>Email</label>
-                <input type="email" v-model="email" />
-                <span class="error-message">{{ errors.email }}</span>
+                <InputText v-model="email" type="email" />
+                <Message v-if="errors.email" severity="error" size="small" variant="simple">{{ errors.email }}</Message>
             </div>
 
-            <div>
+            <div class="flex flex-col gap-1">
                 <label>Phone Number</label>
-                <input type="text" v-model="phone" />
-                <span class="error-message">{{ errors.phone }}</span>
+                <InputText v-model="phone" />
+                <Message v-if="errors.phone" severity="error" size="small" variant="simple">{{ errors.phone }}</Message>
             </div>
 
-            <div>
+            <div class="flex flex-col gap-1">
                 <label>Emergency Contact</label>
-                <input type="text" v-model="emergency_contact" />
-                <span class="error-message">{{ errors.emergency_contact }}</span>
+                <InputText v-model="emergency_contact" />
+                <Message v-if="errors.emergency_contact" severity="error" size="small" variant="simple">{{ errors.emergency_contact }}</Message>
             </div>
         </form>
-
-        <!-- <div>
-            <button type="button" disabled>
-                Back
-            </button>
-            <button type="button" @click="submit" :disabled="isSubmitting">
-                Next
-            </button>
-        </div> -->
-
     </section>
 </template>

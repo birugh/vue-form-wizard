@@ -1,19 +1,40 @@
 <script setup>
-defineProps({
+import { computed } from 'vue'
+import Panel from 'primevue/panel'
+import Tag from 'primevue/tag'
+
+const props = defineProps({
     data: {
         type: Object,
         required: true,
     },
 })
+
+const formattedDate = computed(() => {
+    if (!props.data.join_date) return '-'
+
+    const date = new Date(props.data.join_date)
+    return isNaN(date)
+        ? props.data.join_date
+        : date.toISOString().split('T')[0]
+})
 </script>
 
 <template>
-    <section>
-        <h3>Job Details</h3>
-        <p>Department: {{ data.department }}</p>
-        <p>Job Title: {{ data.job_title }}</p>
-        <p>Join Date: {{ data.join_date }}</p>
-        <p>Work Arrangement: {{ data.work_arrangement }}</p>
-        <p>Device Request: {{ data.device_request }}</p>
-    </section>
+    <Panel header="Job Details">
+        <p><strong>Department:</strong> {{ data.department || '-' }}</p>
+        <p><strong>Job Title:</strong> {{ data.job_title || '-' }}</p>
+
+        <p><strong>Join Date:</strong> {{ formattedDate }}</p>
+
+        <p>
+            <strong>Work Arrangement:</strong>
+            <Tag :value="data.work_arrangement || '-'" />
+        </p>
+
+        <p>
+            <strong>Device Request:</strong>
+            <Tag :value="data.device_request || '-'" severity="info" />
+        </p>
+    </Panel>
 </template>

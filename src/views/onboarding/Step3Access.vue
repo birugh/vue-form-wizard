@@ -2,10 +2,11 @@
 import { onMounted } from 'vue'
 import { useForm, useField } from 'vee-validate'
 import * as yup from 'yup'
-
 import { useOnboardingStore } from '@/stores/onboarding.store'
-import Multiselect from '@vueform/multiselect'
-import '@vueform/multiselect/themes/default.css'
+
+// PrimeVue
+import MultiSelect from 'primevue/multiselect'
+import Dropdown from 'primevue/dropdown'
 import FileUpload from 'primevue/fileupload'
 
 // =======================
@@ -49,39 +50,41 @@ const {
     validateOnMount: false,
 })
 
-const { value: communication_tools } = useField('communication_tools', undefined, {
-    initialValue: [],
-})
-
-const { value: technical_tools } = useField('technical_tools', undefined, {
-    initialValue: [],
-})
-
+const { value: communication_tools } = useField('communication_tools', undefined, { initialValue: [] })
+const { value: technical_tools } = useField('technical_tools', undefined, { initialValue: [] })
 const { value: access_level } = useField('access_level')
-
-const { value: specific_zones } = useField('specific_zones', undefined, {
-    initialValue: [],
-})
-
-const { value: evidences } = useField('evidences', undefined, {
-    initialValue: [],
-})
+const { value: specific_zones } = useField('specific_zones', undefined, { initialValue: [] })
+const { value: evidences } = useField('evidences', undefined, { initialValue: [] })
 
 const store = useOnboardingStore()
 
 // =======================
-// 3️⃣ File Upload handlers
+// 3️⃣ Options
+// =======================
+const communicationOptions = ['Slack', 'Email']
+const technicalOptions = ['GitHub', 'Postman']
+const accessLevelOptions = [
+    { label: 'Low', value: 'Low' },
+    { label: 'Medium', value: 'Medium' },
+    { label: 'High', value: 'High' },
+]
+const zoneOptions = ['Office', 'Server Room', 'Warehouse']
+
+// =======================
+// 4️⃣ File Upload handlers
 // =======================
 const onFileSelect = (event) => {
     evidences.value = event.files
 }
 
-const onFileRemove = () => {
-    evidences.value = evidences.value.filter(file => file.size > 0)
+const onFileRemove = (event) => {
+    evidences.value = evidences.value.filter(
+        file => !event.files.some(f => f.name === file.name)
+    )
 }
 
 // =======================
-// 4️⃣ Load existing draft
+// 5️⃣ Load draft
 // =======================
 onMounted(() => {
     if (!store.onboarding?.access_rights) return
@@ -89,34 +92,34 @@ onMounted(() => {
 })
 
 // =======================
-// 5️⃣ BUILD PAYLOAD (FormData)
+// 6️⃣ Build payload
 // =======================
 const buildPayload = () => {
     const formData = new FormData()
 
-    values.communication_tools.forEach(item =>
-        formData.append('communication_tools[]', item)
+    values.communication_tools.forEach(v =>
+        formData.append('communication_tools[]', v)
     )
 
-    values.technical_tools.forEach(item =>
-        formData.append('technical_tools[]', item)
+    values.technical_tools.forEach(v =>
+        formData.append('technical_tools[]', v)
     )
 
     formData.append('access_level', values.access_level)
 
-    values.specific_zones.forEach(item =>
-        formData.append('specific_zones[]', item)
+    values.specific_zones.forEach(v =>
+        formData.append('specific_zones[]', v)
     )
 
-    evidences.value.forEach(file => {
+    evidences.value.forEach(file =>
         formData.append('evidences[]', file)
-    })
+    )
 
     return formData
 }
 
 // =======================
-// 6️⃣ EXPOSE CONTRACT KE WIZARD
+// 7️⃣ Contract ke Wizard
 // =======================
 defineExpose({
     async validateStep() {
@@ -126,6 +129,11 @@ defineExpose({
     getPayload() {
         return buildPayload()
     },
+    hasValue() {
+        return Object.values(values).some(
+            (v) => v !== null && v !== '' && v !== undefined
+        )
+    },
 })
 </script>
 
@@ -133,41 +141,40 @@ defineExpose({
     <section>
         <h2>Step 3 - Access Rights & Evidence</h2>
 
-        <form>
+        <form class="p-fluid">
             <fieldset>
                 <legend>System Access</legend>
 
                 <label>Communication Tools</label>
-                <Multiselect v-model="communication_tools" mode="tags" :options="['Slack', 'Email']" />
-                <span>{{ errors.communication_tools }}</span>
+                <MultiSelect v-model="communication_tools" :options="communicationOptions" display="chip"
+                    placeholder="Select tools" />
+                <small class="p-error">{{ errors.communication_tools }}</small>
 
                 <label>Technical Tools</label>
-                <Multiselect v-model="technical_tools" mode="tags" :options="['GitHub', 'Postman']" />
-                <span>{{ errors.technical_tools }}</span>
+                <MultiSelect v-model="technical_tools" :options="technicalOptions" display="chip"
+                    placeholder="Select tools" />
+                <small class="p-error">{{ errors.technical_tools }}</small>
             </fieldset>
 
             <fieldset>
                 <legend>Facility Access</legend>
 
                 <label>Access Level</label>
-                <select v-model="access_level">
-                    <option value="">Select</option>
-                    <option>Low</option>
-                    <option>Medium</option>
-                    <option>High</option>
-                </select>
-                <span>{{ errors.access_level }}</span>
+                <Dropdown v-model="access_level" :options="accessLevelOptions" optionLabel="label" optionValue="value"
+                    placeholder="Select access level" />
+                <small class="p-error">{{ errors.access_level }}</small>
 
                 <label>Specific Zones</label>
-                <Multiselect v-model="specific_zones" mode="tags" :options="['Office', 'Server Room', 'Warehouse']" />
-                <span>{{ errors.specific_zones }}</span>
+                <MultiSelect v-model="specific_zones" :options="zoneOptions" display="chip"
+                    placeholder="Select zones" />
+                <small class="p-error">{{ errors.specific_zones }}</small>
             </fieldset>
 
             <div>
                 <label>Upload Evidence</label>
                 <FileUpload mode="advanced" customUpload multiple accept="image/*,application/pdf"
                     :maxFileSize="5000000" @select="onFileSelect" @remove="onFileRemove" />
-                <span>{{ errors.evidences }}</span>
+                <small class="p-error">{{ errors.evidences }}</small>
             </div>
         </form>
     </section>
