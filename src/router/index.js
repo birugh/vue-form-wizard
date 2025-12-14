@@ -5,15 +5,39 @@ import Step3Access from '@/views/onboarding/Step3Access.vue'
 import Step4Preview from '@/views/onboarding/Step4Preview.vue'
 import WizardLayout from '@/components/wizard/WizardLayout.vue'
 import { useOnboardingStore } from '@/stores/onboarding.store'
+import LoginLayout from '@/layouts/LoginLayout.vue'
+import LoginPage from '@/views/LoginPage.vue'
+import { useAuth } from '@/composables/useAuth'
+import { useAuthStore } from '@/stores/auth.store'
+
 
 const routes = [
   {
     path: '/',
-    redirect: '/onboarding/step-1',
+    redirect: '/login',
+  },
+  {
+    path: '/login',
+    component: LoginLayout,
+    children: [
+      {
+        path: '',
+        name: 'login',
+        component: LoginPage,
+        meta: { guestOnly: true },
+      },
+    ],
+  },
+  {
+    path: '/onboardings',
+    name: 'onboardings.list',
+    component: OnboardingList,
+    meta: { requiresAuth: true },
   },
   {
     path: '/onboarding',
     component: WizardLayout,
+    meta: { requiresAuth: true },
     children: [
       {
         path: 'step-1', component: Step1Personal,
@@ -45,24 +69,40 @@ const stepMap = [
 ]
 
 router.beforeEach(async (to, from, next) => {
-  if (!to.path.startsWith('/onboarding')) {
-    return next()
+  const auth = useAuthStore()
+  const onboarding = useOnboardingStore()
+
+  /**
+   * 🔐 AUTH GUARD
+   */
+  if (to.meta.requiresAuth && !auth.isAuthenticated) {
+    return next('/login')
   }
 
-  const store = useOnboardingStore()
+  /**
+   * 🚫 GUEST ONLY
+   */
+  if (to.meta.guestOnly && auth.isAuthenticated) {
+    return next('/onboarding/step-1')
+  }
 
-  if (!store.onboarding) {
-    if (to.path !== '/onboarding/step-1') {
+  /**
+   * 🧭 ONBOARDING FLOW GUARD
+   */
+  if (to.path.startsWith('/onboarding')) {
+    // belum punya onboarding → hanya boleh ke step-1
+    if (!onboarding.onboarding && to.path !== '/onboarding/step-1') {
       return next('/onboarding/step-1')
     }
-    return next()
-  }
 
-  const step = stepMap.find(s => s.path === to.path)
-  if (!step) return next()
+    const rule = stepMap.find(r => r.path === to.path)
 
-  if (store.onboarding[step.key] === null) {
-    return next('/onboarding/step-1')
+    if (rule && rule.requiredKey) {
+      const value = onboarding.onboarding?.[rule.requiredKey]
+      if (!value) {
+        return next('/onboarding/step-1')
+      }
+    }
   }
 
   next()

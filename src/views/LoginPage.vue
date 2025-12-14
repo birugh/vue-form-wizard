@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuth } from '@/auth/useAuth'
+import { useAuth } from '@/composables/useAuth'
 
 const router = useRouter()
 const { login } = useAuth()
@@ -12,16 +12,15 @@ const error = ref('')
 
 const handleSubmit = async () => {
     const result = await login(username.value, password.value)
-    console.log(result);
-
 
     if (!result.ok) {
         error.value = result.message
         return
     }
 
-    router.push('/boards')
+    router.push('/onboarding')
 }
+
 </script>
 
 <template>
