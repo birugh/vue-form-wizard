@@ -1,16 +1,12 @@
 <script setup>
 import { onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { useForm, useField } from 'vee-validate'
 import * as yup from 'yup'
-
 import { useOnboardingStore } from '@/stores/onboarding.store'
-import { createDraft, updateStep1 } from '@/api/onboarding.api'
 
-const router = useRouter()
-const store = useOnboardingStore()
-
-// 1️⃣ Schema
+// =======================
+// 1️⃣ Schema (tetap di step)
+// =======================
 const schema = yup.object({
     name: yup.string().required('Name wajib diisi'),
     email: yup.string().email('Email tidak valid').required('Email wajib diisi'),
@@ -22,8 +18,15 @@ const schema = yup.object({
         .matches(/^08[0-9]{8,11}$/, 'Nomor HP tidak valid'),
 })
 
+// =======================
 // 2️⃣ Form
-const { handleSubmit, setValues, errors, isSubmitting } = useForm({
+// =======================
+const {
+    validate,
+    setValues,
+    values,
+    errors,
+} = useForm({
     validationSchema: schema,
     validateOnMount: false,
 })
@@ -33,30 +36,27 @@ const { value: email } = useField('email')
 const { value: phone } = useField('phone')
 const { value: emergency_contact } = useField('emergency_contact')
 
-// 3️⃣ Submit
-const submit = handleSubmit(async (values) => {
-    let onboardingId
+const store = useOnboardingStore()
 
-    if (!store.onboarding?.id) {
-        const res = await createDraft(values)
-        onboardingId = res.data.data.id
-    }
-    else {
-        onboardingId = store.onboarding.id
-        await updateStep1(onboardingId, values)
-    }
-
-    await store.fetchOnboarding(onboardingId)
-
-    router.push('/onboarding/step-2')
+// =======================
+// 3️⃣ Load existing draft
+// =======================
+onMounted(() => {
+    if (!store.onboarding?.personal_information) return
+    setValues(store.onboarding.personal_information)
 })
 
-// 4️⃣ Load existing draft (edit case)
-onMounted(() => {
-    // console.log(store.onboarding);
-    if (!store.onboarding?.personal_information) return
-
-    setValues(store.onboarding.personal_information)
+// =======================
+// 4️⃣ EXPOSE CONTRACT KE WIZARD
+// =======================
+defineExpose({
+    async validateStep() {
+        const result = await validate()
+        return result.valid
+    },
+    getValues() {
+        return values
+    },
 })
 </script>
 
@@ -90,14 +90,14 @@ onMounted(() => {
             </div>
         </form>
 
-        <div>
+        <!-- <div>
             <button type="button" disabled>
                 Back
             </button>
             <button type="button" @click="submit" :disabled="isSubmitting">
                 Next
             </button>
-        </div>
+        </div> -->
 
     </section>
 </template>

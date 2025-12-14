@@ -1,16 +1,12 @@
 <script setup>
 import { onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { useForm, useField } from 'vee-validate'
 import * as yup from 'yup'
-
 import { useOnboardingStore } from '@/stores/onboarding.store'
-import { updateStep2 } from '@/api/onboarding.api'
 
-const router = useRouter()
-const store = useOnboardingStore()
-
-// 1️⃣ Schema
+// =======================
+// 1️⃣ Schema (khusus step 2)
+// =======================
 const schema = yup.object({
     department: yup.string().required('Department wajib diisi'),
     job_title: yup.string().required('Job title wajib diisi'),
@@ -25,8 +21,15 @@ const schema = yup.object({
         .required('Device request wajib diisi'),
 })
 
+// =======================
 // 2️⃣ Form
-const { handleSubmit, setValues, errors } = useForm({
+// =======================
+const {
+    validate,
+    setValues,
+    values,
+    errors,
+} = useForm({
     validationSchema: schema,
     validateOnMount: false,
 })
@@ -37,27 +40,27 @@ const { value: join_date } = useField('join_date')
 const { value: work_arrangement } = useField('work_arrangement')
 const { value: device_request } = useField('device_request')
 
-// 3️⃣ Submit
-const submit = handleSubmit(async (values) => {
-    // 1️⃣ UPDATE backend
-    await updateStep2(store.onboarding.id, values)
+const store = useOnboardingStore()
 
-    // 2️⃣ FETCH ulang ke store
-    await store.fetchOnboarding(store.onboarding.id)
-
-    // 3️⃣ NEXT
-    router.push('/onboarding/step-3')
-})
-
-const goBack = () => {
-    router.push('/onboarding/step-1')
-}
-
-// 4️⃣ Load existing draft (edit case)
+// =======================
+// 3️⃣ Load existing draft
+// =======================
 onMounted(() => {
     if (!store.onboarding?.job_details) return
-
     setValues(store.onboarding.job_details)
+})
+
+// =======================
+// 4️⃣ Expose contract ke Wizard
+// =======================
+defineExpose({
+    async validateStep() {
+        const result = await validate()
+        return result.valid
+    },
+    getValues() {
+        return values
+    },
 })
 </script>
 
@@ -68,55 +71,47 @@ onMounted(() => {
         <form>
             <div>
                 <label>Department</label>
+                <label>Department</label>
                 <select v-model="department">
                     <option value="">Select</option>
                     <option>IT</option>
                     <option>HR</option>
                 </select>
-                <span class="error-message">{{ errors.department }}</span>
+                <span>{{ errors.department }}</span>
             </div>
 
             <div>
                 <label>Job Title</label>
                 <input type="text" v-model="job_title" />
-                <span class="error-message">{{ errors.job_title }}</span>
+                <span>{{ errors.job_title }}</span>
             </div>
 
             <div>
                 <label>Join Date</label>
                 <input type="date" v-model="join_date" />
-                <span class="error-message">{{ errors.join_date }}</span>
+                <span>{{ errors.join_date }}</span>
             </div>
 
             <div>
                 <label>Work Arrangement</label>
                 <select v-model="work_arrangement">
-                    <option value="">Select</option>
-                    <option>WFO</option>
-                    <option>Remote</option>
-                    <option>Hybrid</option>
+                    <option value="">-- pilih --</option>
+                    <option value="WFO">WFO</option>
+                    <option value="Remote">Remote</option>
+                    <option value="Hybrid">Hybrid</option>
                 </select>
-                <span class="error-message">{{ errors.work_arrangement }}</span>
+                <span>{{ errors.work_arrangement }}</span>
             </div>
 
             <div>
                 <label>Device Request</label>
                 <select v-model="device_request">
-                    <option value="">Select</option>
-                    <option>MacBook</option>
-                    <option>Laptop</option>
+                    <option value="">-- pilih --</option>
+                    <option value="MacBook">MacBook</option>
+                    <option value="Laptop">Laptop</option>
                 </select>
-                <span class="error-message">{{ errors.device_request }}</span>
+                <span>{{ errors.device_request }}</span>
             </div>
         </form>
-
-        <div>
-            <button type="button" @click="goBack">
-                Back
-            </button>
-            <button type="button" @click="submit">
-                Next
-            </button>
-        </div>
     </section>
 </template>
