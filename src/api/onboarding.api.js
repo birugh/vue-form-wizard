@@ -11,7 +11,7 @@ export const updateStep2 = (id, payload) =>
 
 export const updateStep3 = (id, payload) => {
   payload.append('_method', 'PUT')
-  api.post(`/onboardings/${id}/step-3`, payload)
+  return api.post(`/onboardings/${id}/step-3`, payload)
 }
 
 export const submitOnboarding = (id) =>
@@ -19,3 +19,8 @@ export const submitOnboarding = (id) =>
 
 export const getOnboarding = (id) =>
   api.get(`/onboardings/${id}`)
+
+export const getOnboardingAll = ({ page }) =>
+  api.get(`/onboardings?page=${page}`)
+
+

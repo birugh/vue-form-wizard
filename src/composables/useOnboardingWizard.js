@@ -62,7 +62,7 @@ export function useOnboardingWizard() {
                     await updateStep1(onboardingId, values)
                 }
 
-                await store.fetchOnboarding(onboardingId)
+                await store.fetch(onboardingId)
             },
         },
         {
@@ -72,7 +72,7 @@ export function useOnboardingWizard() {
             key: 'personal_information',
             submit: async (values) => {
                 await updateStep2(store.onboarding.id, values)
-                await store.fetchOnboarding(store.onboarding.id)
+                await store.fetch(store.onboarding.id)
             },
         },
         {
@@ -82,7 +82,7 @@ export function useOnboardingWizard() {
             key: 'job_details',
             submit: async (payload) => {
                 await updateStep3(store.onboarding.id, payload)
-                await store.fetchOnboarding(store.onboarding.id)
+                await store.fetch(store.onboarding.id)
             },
         },
         {
@@ -209,7 +209,7 @@ export function useOnboardingWizard() {
     onMounted(async () => {
         if (store.onboarding?.id) return
         if (!route.query.onboarding_id) return
-        await store.fetchOnboarding(route.query.onboarding_id)
+        await store.fetch(route.query.onboarding_id)
     })
 
     // =======================

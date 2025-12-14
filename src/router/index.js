@@ -7,8 +7,9 @@ import WizardLayout from '@/components/wizard/WizardLayout.vue'
 import { useOnboardingStore } from '@/stores/onboarding.store'
 import LoginLayout from '@/layouts/LoginLayout.vue'
 import LoginPage from '@/views/LoginPage.vue'
-import { useAuth } from '@/composables/useAuth'
+// import { useAuth } from '@/composables/useAuth'
 import { useAuthStore } from '@/stores/auth.store'
+import OnboardingList from '@/views/onboarding/OnboardingList.vue'
 
 
 const routes = [
@@ -37,7 +38,7 @@ const routes = [
   {
     path: '/onboarding',
     component: WizardLayout,
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, isWizard: true },
     children: [
       {
         path: 'step-1', component: Step1Personal,
@@ -89,7 +90,7 @@ router.beforeEach(async (to, from, next) => {
   /**
    * 🧭 ONBOARDING FLOW GUARD
    */
-  if (to.path.startsWith('/onboarding')) {
+  if (to.meta.isWizard) {
     // belum punya onboarding → hanya boleh ke step-1
     if (!onboarding.onboarding && to.path !== '/onboarding/step-1') {
       return next('/onboarding/step-1')
