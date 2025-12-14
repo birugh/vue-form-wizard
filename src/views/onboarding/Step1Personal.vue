@@ -1,144 +1,62 @@
 <script setup>
-import { onMounted, reactive, ref, watch } from 'vue'
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useOnboardingStore } from '@/stores/onboarding.store'
-import { createDraft } from '@/api/onboarding.api'
-// import { debounce } from '@/utils/debounce'
-import { loadOnboardingData } from '@/utils/loadOnboarding'
-import * as yup from 'yup'
 import { useForm, useField } from 'vee-validate'
+import * as yup from 'yup'
 
-
-const step1Schema = yup.object({
-    name: yup.string().required('Name wajib diisi'),
-    email: yup.string().email('Email tidak valid').required('Email wajib diisi'),
-    phone: yup.string()
-        .required('Nomor HP wajib diisi')
-        .matches(
-            /^08[0-9]{8,11}$/,
-            'Nomor HP harus diawali 08 dan berisi 10–13 digit'
-        ),
-    emergency_contact: yup.string()
-        .required('Emergency contact wajib diisi')
-        .matches(
-            /^08[0-9]{8,11}$/,
-            'Nomor HP harus diawali 08 dan berisi 10–13 digit'
-        ),
-})
-
-const {
-    handleSubmit,
-    setValues,
-    values,
-    errors,
-    // meta,
-
-} = useForm({
-    validationSchema: step1Schema,
-    validateOnMount: false,
-    validateOnBlur: false,
-    validateOnChange: false,
-    validateOnInput: false,
-    validateOnModelUpdate: false,
-})
-
+import { useOnboardingStore } from '@/stores/onboarding.store'
+import { createDraft, updateStep1 } from '@/api/onboarding.api'
 
 const router = useRouter()
 const store = useOnboardingStore()
 
-// const form = reactive({
-//     name: '',
-//     email: '',
-//     phone: '',
-//     emergency_contact: '',
-// })
+// 1️⃣ Schema
+const schema = yup.object({
+    name: yup.string().required('Name wajib diisi'),
+    email: yup.string().email('Email tidak valid').required('Email wajib diisi'),
+    phone: yup.string()
+        .required('Nomor HP wajib diisi')
+        .matches(/^08[0-9]{8,11}$/, 'Nomor HP tidak valid'),
+    emergency_contact: yup.string()
+        .required('Emergency contact wajib diisi')
+        .matches(/^08[0-9]{8,11}$/, 'Nomor HP tidak valid'),
+})
+
+// 2️⃣ Form
+const { handleSubmit, setValues, errors, isSubmitting } = useForm({
+    validationSchema: schema,
+    validateOnMount: false,
+})
+
 const { value: name } = useField('name')
 const { value: email } = useField('email')
 const { value: phone } = useField('phone')
 const { value: emergency_contact } = useField('emergency_contact')
 
+// 3️⃣ Submit
+const submit = handleSubmit(async (values) => {
+    let onboardingId
 
-const isSaving = ref(false)
-const isValid = ref(false)
-
-// function validateStep1() {
-//     return (
-//         form.name &&
-//         form.email &&
-//         form.phone &&
-//         form.emergency_contact
-//     )
-// }
-
-async function saveDraft() {
-    // if (!validateStep1()) return
-
-    if (!store.onboardingId) return
-
-    try {
-        isSaving.value = true
-        const result = await createDraft(values)
-        store.setOnboardingId(result.data.data.id)
-        store.step1Completed = true
-    } catch (err) {
-        console.error(err)
-    } finally {
-        isSaving.value = false
+    if (!store.onboarding?.id) {
+        const res = await createDraft(values)
+        onboardingId = res.data.data.id
     }
-}
-
-// const autoSave = debounce(() => {
-//   saveDraft()
-// }, 800)
-
-// watch(form, () => {
-//     if (validateStep1()) {
-//         autoSave()
-//     }
-// })
-
-// onBeforeRouteLeave(() => {
-//     if (validateStep1()) {
-//         saveDraft()
-//     }
-// })
-
-// function goNext() {
-//     if (!validateStep1()) return
-//     router.push('/onboarding/step-2')
-// }
-const goNext = handleSubmit(async () => {
-    if (!store.onboardingId) {
-
-        try {
-            const result = await createDraft(values)
-            store.setOnboardingId(result.data.data.id)
-            store.step1Completed = true
-        } catch (err) {
-            console.error(err)
-        }
+    else {
+        onboardingId = store.onboarding.id
+        await updateStep1(onboardingId, values)
     }
-    store.maxStepReached = Math.max(store.maxStepReached, 2)
+
+    await store.fetchOnboarding(onboardingId)
+
     router.push('/onboarding/step-2')
-
 })
 
+// 4️⃣ Load existing draft (edit case)
+onMounted(() => {
+    // console.log(store.onboarding);
+    if (!store.onboarding?.personal_information) return
 
-onMounted(async () => {
-    try {
-        console.log(store.onboardingId);
-        if (!store.onboardingId) return
-
-        const onboarding = await loadOnboardingData(store.onboardingId)
-
-        if (onboarding.personal_information) {
-            setValues(onboarding.personal_information)
-            // console.log(onboarding.personal_information);
-            // console.log(form);
-        }
-    } catch (err) {
-        console.log(err)
-    }
+    setValues(store.onboarding.personal_information)
 })
 </script>
 
@@ -173,15 +91,13 @@ onMounted(async () => {
         </form>
 
         <div>
-            <button type="button" @click="saveDraft">
-                Save Draft
+            <button type="button" disabled>
+                Back
             </button>
-
-            <button type="button" @click="goNext">
+            <button type="button" @click="submit" :disabled="isSubmitting">
                 Next
             </button>
         </div>
 
-        <p v-if="isSaving">Saving draft...</p>
     </section>
 </template>

@@ -1,34 +1,55 @@
 <script setup>
 import { useOnboardingStore } from '@/stores/onboarding.store'
-import { useRouter, useRoute } from 'vue-router'
+import { computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import WizardSteps from './WizardSteps.vue'
 
-const router = useRouter()
 const route = useRoute()
 const store = useOnboardingStore()
 
 const steps = [
-  { label: 'Personal Information', path: '/onboarding/step-1', step: 1 },
-  { label: 'Job Details', path: '/onboarding/step-2', step: 2 },
-  { label: 'Access Rights & Evidence', path: '/onboarding/step-3', step: 3 },
-  { label: 'Preview & Confirmation', path: '/onboarding/preview', step: 4 },
+  {
+    step: 1,
+    label: 'Personal Information',
+    path: '/onboarding/step-1',
+    requiredKey: null,
+  },
+  {
+    step: 2,
+    label: 'Job Details',
+    path: '/onboarding/step-2',
+    key: 'personal_information',
+  },
+  {
+    step: 3,
+    label: 'Access Rights & Evidence',
+    path: '/onboarding/step-3',
+    key: 'job_details',
+  },
+  {
+    step: 4,
+    label: 'Preview & Confirmation',
+    path: '/onboarding/preview',
+    key: 'access_rights',
+  },
 ]
 
-function goNext() {
-  // 
-}
 
-function goBack() {
-  // 
-  router.back()
-}
+const resolvedSteps = computed(() => {
+  if (!store.onboarding) return []
 
-function saveDraft() {
-  // 
-}
+  return steps.map(step => ({
+    ...step,
+    enabled: store.onboarding[step.key] !== null,
+  }))
+})
 
-function submit() {
-  // 
-}
+onMounted(async () => {
+  if (store.onboarding?.id) return
+  if (!route.query.onboarding_id) return
+
+  await store.fetchOnboarding(route.query.onboarding_id)
+})
 </script>
 
 <template>
@@ -37,17 +58,7 @@ function submit() {
       <h1>Employee Onboarding Wizard</h1>
     </header>
 
-    <nav>
-      <li v-for="s in steps" :key="s.step">
-        <router-link v-if="store.maxStepReached >= s.step" :to="s.path">
-          Step {{ s.step }} - {{ s.label }}
-        </router-link>
-
-        <span v-else class="disabled">
-          Step {{ s.step }} - {{ s.label }}
-        </span>
-      </li>
-    </nav>
+    <WizardSteps :steps="resolvedSteps" />
 
     <main>
       <router-view />
@@ -72,3 +83,10 @@ function submit() {
     </footer> -->
   </div>
 </template>
+
+<style scoped>
+.disabled {
+  color: #aaa;
+  cursor: not-allowed;
+}
+</style>

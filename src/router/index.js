@@ -31,22 +31,41 @@ const routes = [
   },
 ]
 
+
 const router = createRouter({
   history: createWebHistory(),
   routes,
 })
 
-router.beforeEach((to, from, next) => {
-  const onboardingStore = useOnboardingStore()
+const stepMap = [
+  { path: '/onboarding/step-1', requiredKey: null },
+  { path: '/onboarding/step-2', requiredKey: 'personal_information' },
+  { path: '/onboarding/step-3', requiredKey: 'job_details' },
+  { path: '/onboarding/preview', requiredKey: 'access_rights' },
+]
 
-  if (
-    to.matched.some(route => route.meta.requiresOnboardingId) &&
-    !onboardingStore.onboardingId
-  ) {
-    next('/onboarding/step-1')
-  } else {
-    next()
+router.beforeEach(async (to, from, next) => {
+  if (!to.path.startsWith('/onboarding')) {
+    return next()
   }
+
+  const store = useOnboardingStore()
+
+  if (!store.onboarding) {
+    if (to.path !== '/onboarding/step-1') {
+      return next('/onboarding/step-1')
+    }
+    return next()
+  }
+
+  const step = stepMap.find(s => s.path === to.path)
+  if (!step) return next()
+
+  if (store.onboarding[step.key] === null) {
+    return next('/onboarding/step-1')
+  }
+
+  next()
 })
 
 

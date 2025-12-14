@@ -1,15 +1,36 @@
 import { defineStore } from 'pinia'
+import { getOnboarding } from '@/api/onboarding.api'
 
 export const useOnboardingStore = defineStore('onboarding', {
   state: () => ({
-    onboardingId: localStorage.getItem('onboarding_id'),
-    maxStepReached: 1,
-    step1Completed: false,
+    onboarding: null,
+    loading: false,
   }),
+
   actions: {
-    setOnboardingId(id) {
-      this.onboardingId = id
-      localStorage.setItem('onboarding_id', id)
+    async fetchOnboarding(id) {
+      // if (!id || !this.onboarding) return
+      if (!id) return
+
+      this.loading = true
+      try {
+        const res = await getOnboarding(id)
+        this.onboarding = res.data.data
+      } catch (error) {
+        console.error('Failed to fetch onboarding', error)
+        this.onboarding = null
+      } finally {
+        this.loading = false
+      }
     },
+
+    clear() {
+      this.$reset()
+    },
+  },
+
+  persist: {
+    key: 'onboarding',
+    storage: localStorage,
   },
 })

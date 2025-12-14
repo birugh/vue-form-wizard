@@ -1,24 +1,22 @@
 <script setup>
-import { reactive, ref } from 'vue'
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useForm, useField } from 'vee-validate'
+import * as yup from 'yup'
+
 import { useOnboardingStore } from '@/stores/onboarding.store'
 import { updateStep3 } from '@/api/onboarding.api'
 import Multiselect from '@vueform/multiselect'
 import '@vueform/multiselect/themes/default.css'
-import { useForm, useField } from 'vee-validate'
-import * as yup from 'yup'
+import FileUpload from 'primevue/fileupload'
 
 
-// import { debounce } from '@/utils/debounce'
 
 const router = useRouter()
 const store = useOnboardingStore()
 
-if (!store.onboardingId) {
-    router.push('/onboarding/step-1')
-}
-
-const step3Schema = yup.object({
+// 1️⃣ Schema
+const schema = yup.object({
     communication_tools: yup
         .array()
         .of(yup.string())
@@ -37,19 +35,19 @@ const step3Schema = yup.object({
         .array()
         .of(yup.string())
         .min(1, 'Pilih minimal 1 zone'),
+    evidences: yup
+        .array()
+        .min(1, 'Minimal upload 1 file')
 })
 
-const {
-    handleSubmit,
-    values,
-    errors,
-    setValues,
-} = useForm({
-    validationSchema: step3Schema,
+// 2️⃣ Form
+const { handleSubmit, setValues, errors } = useForm({
+    validationSchema: schema,
     validateOnMount: false,
-    validateOnBlur: false,
-    validateOnChange: false,
-    validateOnInput: false,
+})
+
+const { value: evidences } = useField('evidences', undefined, {
+    initialValue: [],
 })
 
 const { value: communication_tools } = useField('communication_tools', undefined, {
@@ -66,74 +64,55 @@ const { value: specific_zones } = useField('specific_zones', undefined, {
     initialValue: [],
 })
 
-
-
-// const form = reactive({
-//     communication_tools: [],
-//     technical_tools: [],
-//     access_level: '',
-//     specific_zones: [],
-// })
-
-const files = ref([])
-
-function handleFiles(event) {
-    files.value = Array.from(event.target.files)
+const onFileSelect = (event) => {
+    evidences.value = event.files
 }
 
-const saveDraft = async () => {
-    if (!store.onboardingId) return
+const onFileRemove = () => {
+    evidences.value = evidences.value.filter(
+        // file => file.name !== event.file.name
+        file => file.size > 0 // force update
+    )
+}
 
+
+// 3️⃣ Submit
+const submit = handleSubmit(async (values) => {
     const formData = new FormData()
 
-    formData.append('access_level', values.access_level || '')
-
-    values.communication_tools?.forEach(v =>
-        formData.append('communication_tools[]', v)
+    values.communication_tools.forEach(item =>
+        formData.append('communication_tools[]', item)
     )
 
-    values.technical_tools?.forEach(v =>
-        formData.append('technical_tools[]', v)
+    values.technical_tools.forEach(item =>
+        formData.append('technical_tools[]', item)
     )
 
-    values.specific_zones?.forEach(v =>
-        formData.append('specific_zones[]', v)
+    formData.append('access_level', values.access_level)
+
+    values.specific_zones.forEach(item =>
+        formData.append('specific_zones[]', item)
     )
 
-    files.value.forEach(file =>
+    evidences.value.forEach(file => {
         formData.append('evidences[]', file)
-    )
+    })
 
-    try {
-        await updateStep3(store.onboardingId, formData)
-    } catch (err) {
-        console.error(err)
-    }
-}
+    // formData.append('_method', 'PUT')
+
+    await updateStep3(store.onboarding.id, formData)
+    await store.fetchOnboarding(store.onboarding.id)
 
 
-// const autoSave = debounce(() => {
-//   saveDraft()
-// }, 1000)
-
-// watch(form, () => {
-//   autoSave()
-// })
-
-// onBeforeRouteLeave(() => {
-//     saveDraft()
-// })
-
-const goNext = handleSubmit(async () => {
-    await saveDraft()
-    store.maxStepReached = Math.max(store.maxStepReached, 4)
     router.push('/onboarding/preview')
 })
 
-const goBack = async () => {
-    await saveDraft()
-    router.push('/onboarding/step-2')
-}
+// 4️⃣ Load existing draft (edit case)
+onMounted(() => {
+    if (!store.onboarding?.access_rights) return
+
+    setValues(store.onboarding.access_rights)
+})
 </script>
 
 <template>
@@ -185,14 +164,20 @@ const goBack = async () => {
 
             <div>
                 <label>Upload Evidence</label>
-                <input type="file" multiple @change="handleFiles" />
+                <FileUpload mode="advanced" customUpload multiple accept="image/*,application/pdf"
+                    :maxFileSize="5000000" @select="onFileSelect" @remove="onFileRemove" />
+
+                <span class="error-message">{{ errors.evidences }}</span>
             </div>
         </form>
 
         <div>
-            <button type="button" @click="goBack">Back</button>
-            <button type="button" @click="saveDraft">Save Draft</button>
-            <button type="button" @click="goNext">Next</button>
+            <button type="button" @click="goBack">
+                Back
+            </button>
+            <button type="button" @click="submit">
+                Next
+            </button>
         </div>
     </section>
 </template>

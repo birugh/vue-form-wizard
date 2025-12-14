@@ -1,21 +1,17 @@
 <script setup>
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useOnboardingStore } from '@/stores/onboarding.store'
-import { updateStep2 } from '@/api/onboarding.api'
-import { loadOnboardingData } from '@/utils/loadOnboarding'
-
 import { useForm, useField } from 'vee-validate'
 import * as yup from 'yup'
+
+import { useOnboardingStore } from '@/stores/onboarding.store'
+import { updateStep2 } from '@/api/onboarding.api'
 
 const router = useRouter()
 const store = useOnboardingStore()
 
-if (!store.onboardingId) {
-    router.push('/onboarding/step-1')
-}
-
-const step2Schema = yup.object({
+// 1️⃣ Schema
+const schema = yup.object({
     department: yup.string().required('Department wajib diisi'),
     job_title: yup.string().required('Job title wajib diisi'),
     join_date: yup.date().required('Join date wajib diisi'),
@@ -29,17 +25,10 @@ const step2Schema = yup.object({
         .required('Device request wajib diisi'),
 })
 
-const {
-    handleSubmit,
-    setValues,
-    values,
-    errors,
-} = useForm({
-    validationSchema: step2Schema,
+// 2️⃣ Form
+const { handleSubmit, setValues, errors } = useForm({
+    validationSchema: schema,
     validateOnMount: false,
-    validateOnBlur: false,
-    validateOnChange: false,
-    validateOnInput: false,
 })
 
 const { value: department } = useField('department')
@@ -48,70 +37,27 @@ const { value: join_date } = useField('join_date')
 const { value: work_arrangement } = useField('work_arrangement')
 const { value: device_request } = useField('device_request')
 
+// 3️⃣ Submit
+const submit = handleSubmit(async (values) => {
+    // 1️⃣ UPDATE backend
+    await updateStep2(store.onboarding.id, values)
 
-// === FORM STATE ===
-// const form = reactive({
-//     department: '',
-//     job_title: '',
-//     join_date: '',
-//     work_arrangement: '',
-//     device_request: '',
-// })
+    // 2️⃣ FETCH ulang ke store
+    await store.fetchOnboarding(store.onboarding.id)
 
-// watch(form, () =>
-//     console.log(form)
-// );
-
-async function saveDraft() {
-    if (!store.onboardingId) return
-
-    try {
-        await updateStep2(store.onboardingId, values)
-    } catch (err) {
-        if (err.response) {
-            console.error('Status:', err.response.status)
-            console.error('Validation errors:', err.response.data)
-        } else {
-            console.error(err)
-        }
-    }
-}
-
-// const autoSave = debounce(() => {
-//   saveDraft()
-// }, 800)
-
-// watch(form, () => {
-//   autoSave()
-// })
-
-// onBeforeRouteLeave(() => {
-//     saveDraft()
-// })
-
-// === NAVIGATION ===
-const goNext = handleSubmit(async () => {
-    await saveDraft()
-    store.maxStepReached = Math.max(store.maxStepReached, 3)
+    // 3️⃣ NEXT
     router.push('/onboarding/step-3')
 })
 
-const goBack = async () => {
-    await saveDraft()
+const goBack = () => {
     router.push('/onboarding/step-1')
 }
 
-onMounted(async () => {
-    try {
-        if (store.onboardingId) return
-        const onboarding = await loadOnboardingData(store.onboardingId)
+// 4️⃣ Load existing draft (edit case)
+onMounted(() => {
+    if (!store.onboarding?.job_details) return
 
-        if (onboarding.job_details) {
-            setValues(onboarding.job_details)
-        }
-    } catch (err) {
-        console.log(err)
-    }
+    setValues(store.onboarding.job_details)
 })
 </script>
 
@@ -165,9 +111,12 @@ onMounted(async () => {
         </form>
 
         <div>
-            <button type="button" @click="goBack">Back</button>
-            <button type="button" @click="saveDraft">Save Draft</button>
-            <button type="button" @click="goNext">Next</button>
+            <button type="button" @click="goBack">
+                Back
+            </button>
+            <button type="button" @click="submit">
+                Next
+            </button>
         </div>
     </section>
 </template>
