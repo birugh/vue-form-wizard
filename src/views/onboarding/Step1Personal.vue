@@ -29,6 +29,7 @@ const step1Schema = yup.object({
 const {
     handleSubmit,
     setValues,
+    values,
     errors,
     // meta,
 
@@ -72,12 +73,12 @@ const isValid = ref(false)
 async function saveDraft() {
     // if (!validateStep1()) return
 
-    if (store.onboardingId) return
+    if (!store.onboardingId) return
 
     try {
         isSaving.value = true
-        const { result } = await createDraft(form)
-        store.setOnboardingId(result.data.id)
+        const result = await createDraft(values)
+        store.setOnboardingId(result.data.data.id)
         store.step1Completed = true
     } catch (err) {
         console.error(err)
@@ -106,14 +107,28 @@ async function saveDraft() {
 //     if (!validateStep1()) return
 //     router.push('/onboarding/step-2')
 // }
-const goNext = handleSubmit(() => {
+const goNext = handleSubmit(async () => {
+    if (!store.onboardingId) {
+
+        try {
+            const result = await createDraft(values)
+            store.setOnboardingId(result.data.data.id)
+            store.step1Completed = true
+        } catch (err) {
+            console.error(err)
+        }
+    }
+    store.maxStepReached = Math.max(store.maxStepReached, 2)
     router.push('/onboarding/step-2')
+
 })
 
 
 onMounted(async () => {
     try {
-        if (store.onboardingId) return
+        console.log(store.onboardingId);
+        if (!store.onboardingId) return
+
         const onboarding = await loadOnboardingData(store.onboardingId)
 
         if (onboarding.personal_information) {

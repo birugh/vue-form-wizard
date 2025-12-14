@@ -126,6 +126,7 @@ const saveDraft = async () => {
 
 const goNext = handleSubmit(async () => {
     await saveDraft()
+    store.maxStepReached = Math.max(store.maxStepReached, 4)
     router.push('/onboarding/preview')
 })
 
