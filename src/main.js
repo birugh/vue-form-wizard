@@ -5,6 +5,9 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import piniaPersistedstate from 'pinia-plugin-persistedstate'
+
+import StyleClass from 'primevue/styleclass'
+import Ripple from 'primevue/ripple'
 import ToastService from 'primevue/toastservice'
 import PrimeVue from 'primevue/config'
 import Aura from '@primevue/themes/aura'
@@ -18,6 +21,8 @@ app.use(PrimeVue, {
         preset: Aura,
     }
 })
+app.directive('styleclass', StyleClass)
+app.directive('ripple', Ripple)
 app.use(ToastService)
 
 const pinia = createPinia()

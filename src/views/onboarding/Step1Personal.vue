@@ -4,27 +4,21 @@ import { useForm, useField } from 'vee-validate'
 import * as yup from 'yup'
 import { useOnboardingStore } from '@/stores/onboarding.store'
 
-// PrimeVue
 import InputText from 'primevue/inputtext'
 import { Message } from 'primevue'
 
-// =======================
-// 1️⃣ Schema
-// =======================
+
 const schema = yup.object({
-    name: yup.string().required('Name wajib diisi'),
-    email: yup.string().email('Email tidak valid').required('Email wajib diisi'),
+    name: yup.string().required('Name is required'),
+    email: yup.string().email('Invalid email address').required('Email is required'),
     phone: yup.string()
-        .required('Nomor HP wajib diisi')
-        .matches(/^08[0-9]{8,11}$/, 'Nomor HP tidak valid'),
+        .required('Phone number is required')
+        .matches(/^08[0-9]{8,11}$/, 'Invalid phone number'),
     emergency_contact: yup.string()
-        .required('Emergency contact wajib diisi')
-        .matches(/^08[0-9]{8,11}$/, 'Nomor HP tidak valid'),
+        .required('Emergency contact is required')
+        .matches(/^08[0-9]{8,11}$/, 'Invalid phone number'),
 })
 
-// =======================
-// 2️⃣ Form
-// =======================
 const {
     validate,
     setValues,
@@ -42,17 +36,11 @@ const { value: emergency_contact } = useField('emergency_contact')
 
 const store = useOnboardingStore()
 
-// =======================
-// 3️⃣ Load draft
-// =======================
 onMounted(() => {
     if (!store.onboarding?.personal_information) return
     setValues(store.onboarding.personal_information)
 })
 
-// =======================
-// 4️⃣ Contract ke Wizard
-// =======================
 defineExpose({
     async validateStep() {
         const result = await validate()
@@ -73,13 +61,14 @@ defineExpose({
 
             <div class="flex flex-col gap-1 w-100">
                 <label class="label-field req">Name</label>
-                <InputText v-model="name" />
-                <Message v-if="errors.name" severity="error" size="small" variant="simple">{{ errors.name }}</Message>
+                <InputText v-model="name" placeholder="e.g. Biru Kheza Maharley" />
+                <Message v-if="errors.name" severity="error" size="small" variant="simple">{{
+                    errors.name }}</Message>
             </div>
 
             <div class="flex flex-col gap-1 w-100">
                 <label class="label-field req">Email</label>
-                <InputText v-model="email" type="email" />
+                <InputText v-model="email" type="email" placeholder="e.g. example@gmail.com" />
                 <Message v-if="errors.email" severity="error" size="small" variant="simple">{{ errors.email }}</Message>
             </div>
         </div>
@@ -87,13 +76,13 @@ defineExpose({
         <div class="field-row">
             <div class="flex flex-col gap-1">
                 <label class="label-field req">Phone Number</label>
-                <InputText v-model="phone" />
+                <InputText v-model="phone" placeholder="e.g. 08XXXXXXXXXX" />
                 <Message v-if="errors.phone" severity="error" size="small" variant="simple">{{ errors.phone }}</Message>
             </div>
 
             <div class="flex flex-col gap-1">
                 <label class="label-field req">Emergency Contact</label>
-                <InputText v-model="emergency_contact" />
+                <InputText v-model="emergency_contact" placeholder="e.g. 08XXXXXXXXXX" />
                 <Message v-if="errors.emergency_contact" severity="error" size="small" variant="simple">{{
                     errors.emergency_contact }}</Message>
             </div>

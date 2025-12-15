@@ -4,7 +4,7 @@ import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useOnboardingStore } from '@/stores/onboarding.store'
 import { useToast } from 'primevue/usetoast'
 import { confirmUnsavedChanges } from '@/utils/confirmUnsaved'
-import { confirmFinalSubmit } from '@/utils/confirmSubmit'
+// import { confirmFinalSubmit } from '@/utils/confirmSubmit'
 
 
 import {
@@ -16,9 +16,7 @@ import {
 } from '@/api/onboarding.api'
 
 export function useOnboardingWizard() {
-    // =======================
-    // CORE DEPENDENCIES
-    // =======================
+
     const route = useRoute()
     const router = useRouter()
     const store = useOnboardingStore()
@@ -27,10 +25,10 @@ export function useOnboardingWizard() {
     const isProcessing = ref(false)
     const stepRef = ref(null)
 
-    // =======================
-    // ERROR    R
-    // =======================
+
     const showError = (err) => {
+        console.log(err);
+
         const message =
             err?.response?.data?.message ||
             'Something went wrong. Please try again.'
@@ -43,9 +41,7 @@ export function useOnboardingWizard() {
         })
     }
 
-    // =======================
-    // STEP CONFIG (SOURCE OF TRUTH)
-    // =======================
+
     const steps = [
         {
             step: 1,
@@ -71,6 +67,8 @@ export function useOnboardingWizard() {
             path: '/onboarding/step-2',
             key: 'personal_information',
             submit: async (values) => {
+                console.log(values);
+
                 await updateStep2(store.onboarding.id, values)
                 await store.fetch(store.onboarding.id)
             },
@@ -97,9 +95,6 @@ export function useOnboardingWizard() {
         },
     ]
 
-    // =======================
-    // HELPERS
-    // =======================
     const getStepPayload = () => {
         if (!stepRef.value) return null
 
@@ -114,9 +109,6 @@ export function useOnboardingWizard() {
         return null
     }
 
-    // =======================
-    // CURRENT STEP
-    // =======================
     const currentStep = computed(() =>
         steps.find(s => s.path === route.path)
     )
@@ -125,9 +117,32 @@ export function useOnboardingWizard() {
         steps.findIndex(s => s.path === route.path)
     )
 
-    // =======================
-    // ACTIONS
-    // =======================
+    // const goNext = async () => {
+    //     if (isProcessing.value) return
+    //     isProcessing.value = true
+
+    //     try {
+    //         if (stepRef.value?.validateStep) {
+    //             const valid = await stepRef.value.validateStep()
+    //             if (!valid) return
+    //         }
+
+    //         if (currentStep.value?.submit) {
+    //             // const confirmed = await confirmFinalSubmit()
+    //             // if (!confirmed) return
+    //             const payload = getStepPayload()
+    //             await currentStep.value.submit(payload)
+    //         }
+
+    //         const nextStep = steps[currentIndex.value + 1]
+    //         router.push(nextStep ? nextStep.path : '/onboardings')
+    //     } catch (err) {
+    //         showError(err)
+    //     } finally {
+    //         isProcessing.value = false
+    //     }
+    // }
+
     const goNext = async () => {
         if (isProcessing.value) return
         isProcessing.value = true
@@ -139,20 +154,19 @@ export function useOnboardingWizard() {
             }
 
             if (currentStep.value?.submit) {
-                // const confirmed = await confirmFinalSubmit()
-                // if (!confirmed) return
                 const payload = getStepPayload()
                 await currentStep.value.submit(payload)
             }
 
             const nextStep = steps[currentIndex.value + 1]
-            router.push(nextStep ? nextStep.path : '/dashboard')
+            router.push(nextStep ? nextStep.path : '/onboardings')
         } catch (err) {
             showError(err)
         } finally {
             isProcessing.value = false
         }
     }
+
 
     async function goBack() {
         const step = stepRef.value
@@ -162,8 +176,16 @@ export function useOnboardingWizard() {
             if (!confirmed) return
         }
 
-        router.back()
+        const prevStep = steps[currentIndex.value - 1]
+
+        if (!prevStep) {
+            router.push('/onboardings')
+            return
+        }
+
+        router.push(prevStep.path)
     }
+
 
     const saveDraft = async () => {
         if (isProcessing.value) return
@@ -203,26 +225,20 @@ export function useOnboardingWizard() {
         }
     }
 
-    // =======================
-    // INIT LOAD (EDIT CASE)
-    // =======================
     onMounted(async () => {
         if (store.onboarding?.id) return
         if (!route.query.onboarding_id) return
         await store.fetch(route.query.onboarding_id)
     })
 
-    // =======================
-    // STEP ENABLE STATUS
-    // =======================
+
     const resolvedSteps = computed(() => {
         return steps.map(step => {
-            // STEP 1 selalu enabled
+
             if (step.key === null) {
                 return { ...step, enabled: true }
             }
 
-            // step lain disabled kalau onboarding belum ada
             if (!store.onboarding) {
                 return { ...step, enabled: false }
             }
@@ -239,20 +255,14 @@ export function useOnboardingWizard() {
         if (isProcessing.value) return false
     })
 
-    // =======================
-    // PUBLIC API (IMPORTANT)
-    // =======================
     return {
-        // refs
         stepRef,
         isProcessing,
 
-        // step meta
         steps,
         resolvedSteps,
         currentIndex,
 
-        // actions
         goNext,
         goBack,
         saveDraft,

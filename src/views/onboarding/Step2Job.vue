@@ -4,27 +4,19 @@ import { useForm, useField } from 'vee-validate'
 import * as yup from 'yup'
 import { useOnboardingStore } from '@/stores/onboarding.store'
 
-// PrimeVue v4
 import InputText from 'primevue/inputtext'
 import Select from 'primevue/select'
 import DatePicker from 'primevue/datepicker'
 import { Message } from 'primevue'
 
-
-// =======================
-// 1️⃣ Schema
-// =======================
 const schema = yup.object({
-    department: yup.string().required('Department wajib diisi'),
-    job_title: yup.string().required('Job title wajib diisi'),
-    join_date: yup.date().required('Join date wajib diisi'),
-    work_arrangement: yup.string().required(),
-    device_request: yup.string().required(),
+    department: yup.string().required('Department is required'),
+    job_title: yup.string().required('Job title is required'),
+    join_date: yup.date().required('Join date is required'),
+    work_arrangement: yup.string().required('Work arrangement is required'),
+    device_request: yup.string().required('Device request is required'),
 })
 
-// =======================
-// 2️⃣ Form
-// =======================
 const { validate, setValues, values, errors } = useForm({
     validationSchema: schema,
     validateOnMount: false,
@@ -38,34 +30,45 @@ const { value: device_request } = useField('device_request')
 
 const store = useOnboardingStore()
 
-// =======================
-// 3️⃣ Options
-// =======================
+
 const departmentOptions = [
-    { label: 'IT', value: 'IT' },
-    { label: 'HR', value: 'HR' },
+    { label: 'Information Technology', value: 'IT' },
+    { label: 'Human Resources', value: 'HR' },
+    { label: 'Finance', value: 'FIN' },
+    { label: 'Accounting', value: 'ACC' },
+    { label: 'Marketing', value: 'MKT' },
+    { label: 'Sales', value: 'SLS' },
+    { label: 'Operations', value: 'OPS' },
+    { label: 'Customer Service', value: 'CS' },
+    { label: 'Research and Development', value: 'RND' },
+    { label: 'Legal', value: 'LGL' },
+    { label: 'Procurement', value: 'PRC' },
+    { label: 'Quality Assurance', value: 'QA' },
 ]
 
 const workArrangementOptions = [
-    { label: 'WFO', value: 'WFO' },
-    { label: 'Remote', value: 'Remote' },
-    { label: 'Hybrid', value: 'Hybrid' },
+    { label: 'Work From Office (WFO)', value: 'WFO' },
+    { label: 'Work From Home (WFH)', value: 'WFH' },
+    { label: 'Remote', value: 'REMOTE' },
+    { label: 'Hybrid', value: 'HYBRID' },
+    { label: 'Flexible', value: 'FLEX' },
 ]
 
 const deviceOptions = [
-    { label: 'MacBook', value: 'MacBook' },
-    { label: 'Laptop', value: 'Laptop' },
+    { label: 'MacBook', value: 'MACBOOK' },
+    { label: 'Windows Laptop', value: 'WINDOWS_LAPTOP' },
+    { label: 'Linux Laptop', value: 'LINUX_LAPTOP' },
+    { label: 'Desktop PC', value: 'DESKTOP_PC' },
+    { label: 'Tablet', value: 'TABLET' },
+    { label: 'No Device Provided', value: 'NONE' },
 ]
 
-// =======================
-// 4️⃣ Load draft (FIX DATE)
-// =======================
+
 onMounted(() => {
     if (!store.onboarding?.job_details) return
 
     const draft = { ...store.onboarding.job_details }
 
-    // 🔥 FIX UTAMA
     if (draft.join_date) {
         draft.join_date = new Date(draft.join_date)
     }
@@ -73,9 +76,6 @@ onMounted(() => {
     setValues(draft)
 })
 
-// =======================
-// 5️⃣ Contract ke Wizard
-// =======================
 defineExpose({
     async validateStep() {
         const result = await validate()
@@ -113,7 +113,7 @@ defineExpose({
 
                 <div class="flex flex-col gap-1 w-100">
                     <label class="label-field req">Job Title</label>
-                    <InputText v-model="job_title" />
+                    <InputText v-model="job_title" placeholder="e.g. Mobile Developer" />
                     <Message v-if="errors.job_title" class="error-messsage" severity="error" size="small"
                         variant="simple">
                         {{ errors.job_title }}
@@ -121,9 +121,9 @@ defineExpose({
                 </div>
             </div>
 
-            <div class="flex flex-col gap-1">
+            <div class="flex flex-col gap-1 w-fit">
                 <label class="label-field req">Join Date</label>
-                <DatePicker v-model="join_date" dateFormat="yy-mm-dd" showIcon />
+                <DatePicker v-model="join_date" dateFormat="yy-mm-dd" showIcon placeholder="Input a date" />
                 <Message v-if="errors.join_date" class="error-messsage" severity="error" size="small" variant="simple">
                     {{ errors.join_date }}
                 </Message>

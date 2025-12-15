@@ -2,6 +2,16 @@
 import { confirmUnsavedChanges } from '@/utils/confirmUnsaved';
 import WizardSteps from './WizardSteps.vue'
 import { useOnboardingWizard } from '@/composables/useOnboardingWizard'
+import { ref } from 'vue'
+import NavigationBar from '@/components/navigation/navigation-bar.vue';
+import Sidebar from '@/components/navigation/side-bar.vue';
+import { useOnboardingStore } from '@/stores/onboarding.store'
+
+const store = useOnboardingStore()
+
+const isSubmitted = computed(() => store.isSubmitted)
+
+const sidebarVisible = ref(false)
 
 const route = useRoute()
 const router = useRouter()
@@ -38,31 +48,39 @@ const handleStepChange = async (targetStep) => {
 </script>
 
 <template>
-  <div class="container">
-    <header>
-      <h1 class="font-semibold text-2xl">Employee Onboarding Wizard</h1>
-    </header>
+  <header>
+    <navigation-bar @toggle-sidebar="sidebarVisible = true" />
+  </header>
+  <div class="container py-12">
+    <div class="container-content">
 
-    <WizardSteps :steps="resolvedSteps" :modelValue="activeStep" @request-step-change="handleStepChange" />
+      <div class="dashboard__title">
+        <h2 class="font-semibold text-2xl mb-8">Employee Onboarding Wizard</h2>
+        <Button v-if="isSubmitted" icon="pi pi-chevron-circle-left" @click="goBack" label="Back" size="small"
+          severity="secondary" />
+      </div>
 
-    <main>
-      <div class="px-24 py-12">
+      <WizardSteps :steps="resolvedSteps" :modelValue="activeStep" @request-step-change="handleStepChange" />
+
+      <main class="my-12">
         <router-view v-slot="{ Component }">
-
           <component :is="Component" ref="stepRef" />
         </router-view>
-      </div>
-    </main>
+      </main>
 
-    <footer>
-      <div class="flex justify-between items-center">
+      <footer>
+        <div class="flex justify-between items-center">
 
-        <Button @click="saveDraft" :disabled="isProcessing" label="Save as Draft" size="small" />
-        <ButtonGroup>
-          <Button @click="goBack" :disabled="isProcessing || currentIndex === 0" label="Previous" size="small" />
-          <Button @click="goNext" :disabled="isProcessing" :label="currentIndex < 3 ? 'Next' : 'Submit'" size="small" />
-        </ButtonGroup>
-      </div>
-    </footer>
+          <Button @click="saveDraft" :disabled="isProcessing || isSubmitted" label="Save as Draft" size="small" />
+          <ButtonGroup>
+            <Button @click="goBack" :disabled="isProcessing || currentIndex === 0 || isSubmitted" label="Previous"
+              size="small" />
+            <Button @click="goNext" :disabled="isProcessing || isSubmitted"
+              :label="currentIndex < 3 ? 'Next' : 'Submit'" size="small" />
+          </ButtonGroup>
+        </div>
+      </footer>
+    </div>
   </div>
+  <sidebar v-model:visible="sidebarVisible" />
 </template>

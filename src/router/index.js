@@ -14,6 +14,7 @@ import ProfileLayout from '@/layouts/ProfileLayout.vue'
 import ProfilePage from '@/views/ProfilePage.vue'
 
 
+
 const routes = [
   {
     path: '/',
@@ -55,7 +56,16 @@ const routes = [
     meta: { requiresAuth: true, isWizard: true },
     children: [
       {
-        path: 'step-1', component: Step1Personal,
+        path: 'step-1', component: Step1Personal, beforeEnter: (to, from, next) => {
+          const onboarding = useOnboardingStore()
+          console.log('tes');
+
+
+          if (!from.path.startsWith('/onboarding')) {
+            onboarding.refreshOnboarding()
+          }
+          next()
+        }
       },
       {
         path: 'step-2', component: Step2Job, meta: { requiresOnboardingId: true },
@@ -76,18 +86,17 @@ const router = createRouter({
   routes,
 })
 
-const stepMap = [
-  { path: '/onboarding/step-1', requiredKey: null },
-  { path: '/onboarding/step-2', requiredKey: 'personal_information' },
-  { path: '/onboarding/step-3', requiredKey: 'job_details' },
-  { path: '/onboarding/preview', requiredKey: 'access_rights' },
-]
+// const stepMap = [
+//   { path: '/onboarding/step-1', requiredKey: null },
+//   { path: '/onboarding/step-2', requiredKey: 'personal_information' },
+//   { path: '/onboarding/step-3', requiredKey: 'job_details' },
+//   { path: '/onboarding/preview', requiredKey: 'access_rights' },
+// ]
 
 router.beforeEach(async (to, from, next) => {
   const auth = useAuthStore()
   const onboarding = useOnboardingStore()
 
-  // ⏳ pastikan auth siap (refresh case)
   if (auth.token && !auth.booted) {
     try {
       await auth.fetchMe()
@@ -97,33 +106,20 @@ router.beforeEach(async (to, from, next) => {
     }
   }
 
-
-  /**
-   * 🔐 AUTH GUARD
-   */
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
     return next('/login')
   }
 
-  /**
-   * 🚫 GUEST ONLY
-   */
   if (to.meta.guestOnly && auth.isAuthenticated) {
     return auth.isAdmin
       ? next('/onboardings')
       : next('/profile')
   }
 
-  /**
-   * 👮 ADMIN ONLY DASHBOARD
-   */
   if (to.path === '/onboardings' && !auth.isAdmin) {
     return next('/profile')
   }
 
-  /**
-   * 🧭 WIZARD GUARD
-   */
   if (to.meta.isWizard) {
     if (!onboarding.onboarding && to.path !== '/onboarding/step-1') {
       return next(auth.isAdmin ? '/onboardings' : '/profile')
@@ -132,7 +128,5 @@ router.beforeEach(async (to, from, next) => {
 
   next()
 })
-
-
 
 export default router

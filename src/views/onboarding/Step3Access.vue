@@ -4,43 +4,36 @@ import { useForm, useField } from 'vee-validate'
 import * as yup from 'yup'
 import { useOnboardingStore } from '@/stores/onboarding.store'
 
-// PrimeVue
 import MultiSelect from 'primevue/multiselect'
-import Dropdown from 'primevue/dropdown'
+import Select from 'primevue/select'
 import FileUpload from 'primevue/fileupload'
-import { Message, Splitter, SplitterPanel } from 'primevue'
+import { Message } from 'primevue'
 
-// =======================
-// 1️⃣ Schema
-// =======================
 const schema = yup.object({
     communication_tools: yup
         .array()
         .of(yup.string())
-        .min(1, 'Pilih minimal 1 communication tool'),
+        .min(1, 'Please select at least one communication tool'),
 
     technical_tools: yup
         .array()
         .of(yup.string())
-        .min(1, 'Pilih minimal 1 technical tool'),
+        .min(1, 'Please select at least one technical tool'),
 
     access_level: yup
         .string()
-        .required('Access level wajib dipilih'),
+        .required('Access level is required'),
 
     specific_zones: yup
         .array()
         .of(yup.string())
-        .min(1, 'Pilih minimal 1 zone'),
+        .min(1, 'Please select at least one zone'),
 
     evidences: yup
         .array()
-        .min(1, 'Minimal upload 1 file'),
+        .min(1, 'Please upload at least one file'),
 })
 
-// =======================
-// 2️⃣ Form
-// =======================
 const {
     validate,
     setValues,
@@ -59,21 +52,17 @@ const { value: evidences } = useField('evidences', undefined, { initialValue: []
 
 const store = useOnboardingStore()
 
-// =======================
-// 3️⃣ Options
-// =======================
-const communicationOptions = ['Slack', 'Email']
-const technicalOptions = ['GitHub', 'Postman']
+
+const zoneOptions = ['Office', 'Server Room', 'Warehouse', 'Data Center', 'Meeting Room', 'Production Area']
+const communicationOptions = ['Slack', 'Email', 'Microsoft Teams', 'Zoom', 'WhatsApp']
+const technicalOptions = ['GitHub', 'GitLab', 'Bitbucket', 'Postman', 'Jira', 'Docker', 'Steam']
 const accessLevelOptions = [
     { label: 'Low', value: 'Low' },
     { label: 'Medium', value: 'Medium' },
     { label: 'High', value: 'High' },
 ]
-const zoneOptions = ['Office', 'Server Room', 'Warehouse']
 
-// =======================
-// 4️⃣ File Upload handlers
-// =======================
+
 const onFileSelect = (event) => {
     evidences.value = event.files
 }
@@ -84,17 +73,11 @@ const onFileRemove = (event) => {
     )
 }
 
-// =======================
-// 5️⃣ Load draft
-// =======================
 onMounted(() => {
     if (!store.onboarding?.access_rights) return
     setValues(store.onboarding.access_rights)
 })
 
-// =======================
-// 6️⃣ Build payload
-// =======================
 const buildPayload = () => {
     const formData = new FormData()
 
@@ -119,9 +102,6 @@ const buildPayload = () => {
     return formData
 }
 
-// =======================
-// 7️⃣ Contract ke Wizard
-// =======================
 defineExpose({
     async validateStep() {
         const result = await validate()
@@ -141,7 +121,7 @@ defineExpose({
 <template>
     <section>
 
-        <h2 class="text-2xl font-medium mb-4">Step 3 - Access Rights & Evidence</h2>
+        <h2 class="text-2xl font-medium mb-4">Access Rights & Evidence</h2>
         <div class="h-separator"></div>
 
         <form class="flex justify-center flex-col gap-4">
@@ -171,7 +151,7 @@ defineExpose({
                 <div class="field-row">
                     <div class="flex flex-col gap-1 w-50">
                         <label class="label-field req">Access Level</label>
-                        <Dropdown v-model="access_level" :options="accessLevelOptions" optionLabel="label"
+                        <Select v-model="access_level" :options="accessLevelOptions" optionLabel="label"
                             optionValue="value" placeholder="Select access level" />
                         <Message v-if="errors.access_level" class="error-messsage" severity="error" size="small"
                             variant="simple">{{ errors.access_level }}</Message>

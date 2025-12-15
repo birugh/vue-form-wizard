@@ -41,12 +41,10 @@ export const useAuthStore = defineStore('auth', {
         },
 
         async fetchMe() {
-            // ✅ 1. Ambil data user
             const res = await meRequest()
             this.user = res.data.data
             this.booted = true
 
-            // ✅ 2. Kalau user, ambil onboarding-nya
             if (this.user.role === 'user') {
                 const onboardingStore = useOnboardingStore()
                 await onboardingStore.fetchMyOnboarding()
@@ -57,7 +55,6 @@ export const useAuthStore = defineStore('auth', {
             this.$reset()
             localStorage.removeItem('token')
 
-            // optional tapi bagus
             const onboardingStore = useOnboardingStore()
             onboardingStore.clear()
         },

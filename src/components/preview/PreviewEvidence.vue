@@ -4,7 +4,8 @@ import DataView from 'primevue/dataview'
 import Dialog from 'primevue/dialog'
 import { ref } from 'vue'
 
-const props = defineProps({
+// const props = 
+defineProps({
     files: {
         type: Array,
         default: () => [],

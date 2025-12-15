@@ -9,14 +9,8 @@ import { Message } from 'primevue';
 
 const store = useOnboardingStore()
 
-// =======================
-// 1️⃣ Read-only onboarding data
-// =======================
 const onboarding = computed(() => store.onboarding)
 
-// =======================
-// 2️⃣ Expose confirmation ke Wizard
-// =======================
 defineExpose({
     confirmFinal() {
         if (!onboarding.value?.id) return false
@@ -28,7 +22,6 @@ defineExpose({
 <template>
     <section>
         <h2 class="text-2xl font-medium mb-4">Preview & Confirmation</h2>
-        <!-- <p>Please review all information before submitting.</p> -->
         <Message severity="error">Please review all information before submitting.</Message>
         <div class="h-separator"></div>
 
