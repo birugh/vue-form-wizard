@@ -3,6 +3,7 @@ import {
   getOnboarding,
   getOnboardingAll,
 } from '@/api/onboarding.api'
+import { meOnboardingRequest } from '@/services/auth.service'
 
 export const useOnboardingStore = defineStore('onboarding', {
   state: () => ({
@@ -37,6 +38,15 @@ export const useOnboardingStore = defineStore('onboarding', {
         this.onboarding = res.data.data
       } finally {
         this.loading = false
+      }
+    },
+
+    async fetchMyOnboarding() {
+      try {
+        const res = await meOnboardingRequest()
+        this.onboarding = res.data.data
+      } catch {
+        this.onboarding = null
       }
     },
 

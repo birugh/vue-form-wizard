@@ -23,7 +23,7 @@
 /* ! Containers */
 
 .container {
-  @apply w-full px-24 pt-8 mx-auto;
+  @apply w-full px-24 mx-auto;
 }
 
 /* .container {

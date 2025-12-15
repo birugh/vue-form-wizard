@@ -10,6 +10,8 @@ import LoginPage from '@/views/LoginPage.vue'
 // import { useAuth } from '@/composables/useAuth'
 import { useAuthStore } from '@/stores/auth.store'
 import OnboardingList from '@/views/onboarding/OnboardingList.vue'
+import ProfileLayout from '@/layouts/ProfileLayout.vue'
+import ProfilePage from '@/views/ProfilePage.vue'
 
 
 const routes = [
@@ -26,6 +28,18 @@ const routes = [
         name: 'login',
         component: LoginPage,
         meta: { guestOnly: true },
+      },
+    ],
+  },
+  {
+    path: '/profile',
+    component: ProfileLayout,
+    children: [
+      {
+        path: '',
+        name: 'profile',
+        component: ProfilePage,
+        meta: { requiresAuth: true },
       },
     ],
   },
@@ -73,6 +87,17 @@ router.beforeEach(async (to, from, next) => {
   const auth = useAuthStore()
   const onboarding = useOnboardingStore()
 
+  // ⏳ pastikan auth siap (refresh case)
+  if (auth.token && !auth.booted) {
+    try {
+      await auth.fetchMe()
+    } catch {
+      auth.logout()
+      return next('/login')
+    }
+  }
+
+
   /**
    * 🔐 AUTH GUARD
    */
@@ -84,30 +109,30 @@ router.beforeEach(async (to, from, next) => {
    * 🚫 GUEST ONLY
    */
   if (to.meta.guestOnly && auth.isAuthenticated) {
-    return next('/onboarding/step-1')
+    return auth.isAdmin
+      ? next('/onboardings')
+      : next('/profile')
   }
 
   /**
-   * 🧭 ONBOARDING FLOW GUARD
+   * 👮 ADMIN ONLY DASHBOARD
+   */
+  if (to.path === '/onboardings' && !auth.isAdmin) {
+    return next('/profile')
+  }
+
+  /**
+   * 🧭 WIZARD GUARD
    */
   if (to.meta.isWizard) {
-    // belum punya onboarding → hanya boleh ke step-1
     if (!onboarding.onboarding && to.path !== '/onboarding/step-1') {
-      return next('/onboarding/step-1')
-    }
-
-    const rule = stepMap.find(r => r.path === to.path)
-
-    if (rule && rule.requiredKey) {
-      const value = onboarding.onboarding?.[rule.requiredKey]
-      if (!value) {
-        return next('/onboarding/step-1')
-      }
+      return next(auth.isAdmin ? '/onboardings' : '/profile')
     }
   }
 
   next()
 })
+
 
 
 export default router

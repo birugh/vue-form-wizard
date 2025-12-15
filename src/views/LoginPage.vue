@@ -1,43 +1,111 @@
 <script setup>
 import { ref } from 'vue'
+import { useForm, useField } from 'vee-validate'
+import * as yup from 'yup'
+
+// PrimeVue
+import InputText from 'primevue/inputtext'
+import Password from 'primevue/password'
+import Button from 'primevue/button'
+import Message from 'primevue/message'
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
+import { useAuthStore } from '@/stores/auth.store'
 
 const router = useRouter()
 const { login } = useAuth()
+const auth = useAuthStore()
 
-const username = ref('')
-const password = ref('')
-const error = ref('')
 
-const handleSubmit = async () => {
-    const result = await login(username.value, password.value)
+// =======================
+// 1️⃣ Schema
+// =======================
+const schema = yup.object({
+    email: yup
+        .string()
+        .email('Email tidak valid')
+        .required('Email wajib diisi'),
 
-    if (!result.ok) {
-        error.value = result.message
-        return
+    password: yup
+        .string()
+        .required('Password wajib diisi'),
+})
+
+// =======================
+// 2️⃣ Form
+// =======================
+const {
+    handleSubmit,
+    errors,
+    // isSubmitting,
+} = useForm({
+    validationSchema: schema,
+})
+
+const { value: email } = useField('email')
+const { value: password } = useField('password')
+
+// =======================
+// 3️⃣ State error API
+// =======================
+const apiError = ref('')
+
+// =======================
+// 4️⃣ Submit handler
+// =======================
+const onSubmit = handleSubmit(async (values) => {
+    apiError.value = ''
+
+    try {
+        const result = await login(email.value, password.value)
+
+        if (!result.ok) {
+            apiError.value = result.message
+            return
+        }
+
+        if (auth.isAdmin) {
+            router.push('/onboardings')
+            console.log('test');
+
+        } else {
+            router.push('/profile')
+            console.log('testt');
+        }
+
+        console.log('LOGIN PAYLOAD', values)
+    } catch (err) {
+        apiError.value = 'Email atau password salah'
     }
-
-    router.push('/onboarding')
-}
-
+})
 </script>
 
 <template>
-    <h1 class="text-center font-medium text-2xl mb-4">Login Form</h1>
+    <section>
+        <h2 class="text-2xl font-medium mb-4 text-center">Login Form</h2>
 
-    <form method="POST" @submit.prevent="handleSubmit">
-        <div>
-            <label class="label-field req">Email</label><br>
-            <input class="field" type="email" name="email" v-model="username">
-        </div>
+        <form @submit.prevent="onSubmit" class="p-fluid">
+            <div class="flex flex-col gap-1 mb-2">
+                <label>Email</label>
+                <InputText v-model="email" type="email" placeholder="Enter email" />
+                <Message v-if="errors.email" severity="error" size="small" variant="simple">{{ errors.email }}</Message>
+            </div>
 
-        <div>
-            <label class="label-field req">Password</label><br>
-            <input class="field" type="password" name="password" v-model="password">
-        </div>
+            <div class="flex flex-col gap-1">
+                <label>Password</label>
+                <div>
+                    <Password :fluid="true" v-model="password" toggleMask :feedback="false"
+                        placeholder="Enter password" />
+                </div>
+                <Message v-if="apiError" severity="error" variant="simple" :closable="false" class="my-2">
+                    {{ apiError }}
+                </Message>
+                <Message v-if="errors.password" severity="error" size="small" variant="simple">{{ errors.password }}
+                </Message>
+            </div>
 
-        <p class="error-message my-2">{{ error }}</p>
-        <button class="btn btn-primary cursor-pointer mt-2 mb-4">Login</button>
-    </form>
+
+            <Button type="submit" label="Login" class="mt-3" />
+        </form>
+    </section>
 </template>
