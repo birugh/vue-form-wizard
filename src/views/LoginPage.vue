@@ -2,24 +2,19 @@
 import { ref } from 'vue'
 import { useForm, useField } from 'vee-validate'
 import * as yup from 'yup'
+import { useRouter } from 'vue-router'
+import { useAuth } from '@/composables/useAuth'
+import { useAuthStore } from '@/stores/auth.store'
 
-// PrimeVue
 import InputText from 'primevue/inputtext'
 import Password from 'primevue/password'
 import Button from 'primevue/button'
 import Message from 'primevue/message'
-import { useRouter } from 'vue-router'
-import { useAuth } from '@/composables/useAuth'
-import { useAuthStore } from '@/stores/auth.store'
 
 const router = useRouter()
 const { login } = useAuth()
 const auth = useAuthStore()
 
-
-// =======================
-// 1️⃣ Schema
-// =======================
 const schema = yup.object({
     email: yup
         .string()
@@ -31,13 +26,10 @@ const schema = yup.object({
         .required('Password wajib diisi'),
 })
 
-// =======================
-// 2️⃣ Form
-// =======================
 const {
     handleSubmit,
     errors,
-    // isSubmitting,
+    isSubmitting,
 } = useForm({
     validationSchema: schema,
 })
@@ -45,14 +37,8 @@ const {
 const { value: email } = useField('email')
 const { value: password } = useField('password')
 
-// =======================
-// 3️⃣ State error API
-// =======================
 const apiError = ref('')
 
-// =======================
-// 4️⃣ Submit handler
-// =======================
 const onSubmit = handleSubmit(async (values) => {
     apiError.value = ''
 
@@ -76,6 +62,7 @@ const onSubmit = handleSubmit(async (values) => {
         console.log('LOGIN PAYLOAD', values)
     } catch (err) {
         apiError.value = 'Email atau password salah'
+        console.log(err);
     }
 })
 </script>
@@ -105,7 +92,7 @@ const onSubmit = handleSubmit(async (values) => {
             </div>
 
 
-            <Button type="submit" label="Login" class="mt-3" />
+            <Button v-if="isSubmitting" type="submit" label="Login" class="mt-3" />
         </form>
     </section>
 </template>

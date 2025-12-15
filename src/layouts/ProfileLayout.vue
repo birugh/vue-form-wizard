@@ -1,12 +1,18 @@
-<template>
-    <div>
-        <header>
-            <h2>Profile</h2>
-            <hr />
-        </header>
+<script setup>
+import { ref } from 'vue'
+import NavigationBar from '@/components/navigation/navigation-bar.vue';
+import Sidebar from '@/components/navigation/side-bar.vue';
+const sidebarVisible = ref(false)
+</script>
 
-        <main>
+<template>
+    <header>
+        <navigation-bar @toggle-sidebar="sidebarVisible = true" />
+    </header>
+    <main class="my-12">
+        <div class="container">
             <router-view />
-        </main>
-    </div>
+        </div>
+    </main>
+    <sidebar v-model:visible="sidebarVisible" />
 </template>

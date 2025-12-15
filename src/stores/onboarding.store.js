@@ -7,14 +7,20 @@ import { meOnboardingRequest } from '@/services/auth.service'
 
 export const useOnboardingStore = defineStore('onboarding', {
   state: () => ({
-    onboarding: null,      // active wizard
-    list: [],              // draft list
+    onboarding: null,
+    list: [],
     loading: false,
 
     page: 1,
     perPage: 10,
     total: 0,
   }),
+
+  getters: {
+    isSubmitted: (state) => {
+      return !!state.onboarding?.submitted_at
+    },
+  },
 
   actions: {
     async fetchAll() {
@@ -52,6 +58,10 @@ export const useOnboardingStore = defineStore('onboarding', {
 
     setActive(onboarding) {
       this.onboarding = onboarding
+    },
+
+    refreshOnboarding() {
+      this.onboarding = null
     },
 
     clear() {
