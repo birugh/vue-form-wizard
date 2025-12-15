@@ -21,8 +21,8 @@ const {
   resolvedSteps,
   currentIndex,
   isProcessing,
-  goNext,
   goBack,
+  goNext,
   saveDraft,
 } = useOnboardingWizard()
 
@@ -45,6 +45,17 @@ const handleStepChange = async (targetStep) => {
 
   await router.push(targetStep.path)
 }
+
+const handleGoBack = () => {
+
+  if (isSubmitted.value) {
+
+    router.push('/onboardings');
+  } else {
+    goBack()
+  }
+}
+
 </script>
 
 <template>
@@ -56,7 +67,7 @@ const handleStepChange = async (targetStep) => {
 
       <div class="dashboard__title">
         <h2 class="font-semibold text-2xl mb-8">Employee Onboarding Wizard</h2>
-        <Button v-if="isSubmitted" icon="pi pi-chevron-circle-left" @click="goBack" label="Back" size="small"
+        <Button v-if="isSubmitted" icon="pi pi-chevron-circle-left" @click="handleGoBack" label="Back" size="small"
           severity="secondary" />
       </div>
 
@@ -73,7 +84,7 @@ const handleStepChange = async (targetStep) => {
 
           <Button @click="saveDraft" :disabled="isProcessing || isSubmitted" label="Save as Draft" size="small" />
           <ButtonGroup>
-            <Button @click="goBack" :disabled="isProcessing || currentIndex === 0 || isSubmitted" label="Previous"
+            <Button @click="handleGoBack" :disabled="isProcessing || currentIndex === 0 || isSubmitted" label="Previous"
               size="small" />
             <Button @click="goNext" :disabled="isProcessing || isSubmitted"
               :label="currentIndex < 3 ? 'Next' : 'Submit'" size="small" />

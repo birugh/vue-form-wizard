@@ -4,7 +4,7 @@ import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useOnboardingStore } from '@/stores/onboarding.store'
 import { useToast } from 'primevue/usetoast'
 import { confirmUnsavedChanges } from '@/utils/confirmUnsaved'
-// import { confirmFinalSubmit } from '@/utils/confirmSubmit'
+import { confirmFinalSubmit } from '@/utils/confirmSubmit'
 
 
 import {
@@ -67,8 +67,6 @@ export function useOnboardingWizard() {
             path: '/onboarding/step-2',
             key: 'personal_information',
             submit: async (values) => {
-                console.log(values);
-
                 await updateStep2(store.onboarding.id, values)
                 await store.fetch(store.onboarding.id)
             },
@@ -128,8 +126,8 @@ export function useOnboardingWizard() {
     //         }
 
     //         if (currentStep.value?.submit) {
-    //             // const confirmed = await confirmFinalSubmit()
-    //             // if (!confirmed) return
+    // const confirmed = await confirmFinalSubmit()
+    // if (!confirmed) return
     //             const payload = getStepPayload()
     //             await currentStep.value.submit(payload)
     //         }
@@ -154,6 +152,8 @@ export function useOnboardingWizard() {
             }
 
             if (currentStep.value?.submit) {
+                const confirmed = await confirmFinalSubmit()
+                if (!confirmed) return
                 const payload = getStepPayload()
                 await currentStep.value.submit(payload)
             }

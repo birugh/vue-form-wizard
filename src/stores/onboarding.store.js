@@ -27,8 +27,6 @@ export const useOnboardingStore = defineStore('onboarding', {
       this.loading = true
       try {
         const res = await getOnboardingAll({ page: this.page })
-        console.log(res);
-
         this.list = res.data.data
         this.perPage = res.data.meta.per_page
         this.total = res.data.meta.total

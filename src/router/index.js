@@ -58,10 +58,7 @@ const routes = [
       {
         path: 'step-1', component: Step1Personal, beforeEnter: (to, from, next) => {
           const onboarding = useOnboardingStore()
-          console.log('tes');
-
-
-          if (!from.path.startsWith('/onboarding')) {
+          if (from.path.startsWith('/onboardings')) {
             onboarding.refreshOnboarding()
           }
           next()

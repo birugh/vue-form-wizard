@@ -19,16 +19,30 @@ onMounted(async () => {
     await store.fetchAll()
 })
 
-const openDraft = (item) => {
-    // if (item.submitted_at) return
+const hasPersonalInfo = (item) =>
+    !!item.personal_information
 
+const hasJobDetails = (item) =>
+    !!item.job_details
+
+const hasAccessRights = (item) => {
+    const ar = item.access_rights
+    if (!ar) return false
+
+    if (!ar.access_level || ar.access_level === 'undefined') return false
+    if (!Array.isArray(ar.evidences) || ar.evidences.length === 0) return false
+
+    return true
+}
+
+const openDraft = (item) => {
     store.setActive(item)
 
-    if (!item.personal_information) {
+    if (!hasPersonalInfo(item)) {
         router.push('/onboarding/step-1')
-    } else if (!item.job_details) {
+    } else if (!hasJobDetails(item)) {
         router.push('/onboarding/step-2')
-    } else if (!item.access_rights) {
+    } else if (!hasAccessRights(item)) {
         router.push('/onboarding/step-3')
     } else {
         router.push('/onboarding/preview')
@@ -56,6 +70,11 @@ const sidebarVisible = ref(false)
             </div>
 
             <DataTable v-if="isLoading" :value="skeletonRows" stripedRows tableStyle="min-width: 60rem">
+                <Column header="No">
+                    <template #body>
+                        <Skeleton width="50%" />
+                    </template>
+                </Column>
                 <Column header="Name">
                     <template #body>
                         <Skeleton width="80%" />
@@ -83,6 +102,11 @@ const sidebarVisible = ref(false)
 
             <DataTable v-else lazy paginator :value="store.list" :rows="store.perPage" :totalRecords="store.total"
                 :first="(store.page - 1) * store.perPage" @page="onPageChange">
+                <Column header="No">
+                    <template #body="{ index }">
+                        {{ index + 1 }}
+                    </template>
+                </Column>
                 <Column header="Name">
                     <template #body="{ data }">
                         {{ data.personal_information?.name || '-' }}

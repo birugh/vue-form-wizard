@@ -39,7 +39,7 @@ const { value: password } = useField('password')
 
 const apiError = ref('')
 
-const onSubmit = handleSubmit(async (values) => {
+const onSubmit = handleSubmit(async () => {
     apiError.value = ''
 
     try {
@@ -52,14 +52,11 @@ const onSubmit = handleSubmit(async (values) => {
 
         if (auth.isAdmin) {
             router.push('/onboardings')
-            console.log('test');
 
         } else {
             router.push('/profile')
-            console.log('testt');
         }
 
-        console.log('LOGIN PAYLOAD', values)
     } catch (err) {
         apiError.value = 'Email atau password salah'
         console.log(err);
