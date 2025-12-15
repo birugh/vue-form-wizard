@@ -30,6 +30,7 @@ const { value: device_request } = useField('device_request')
 
 const store = useOnboardingStore()
 
+const today = new Date()
 
 const departmentOptions = [
     { label: 'Information Technology', value: 'IT' },
@@ -123,7 +124,8 @@ defineExpose({
 
             <div class="flex flex-col gap-1 w-fit">
                 <label class="label-field req">Join Date</label>
-                <DatePicker v-model="join_date" dateFormat="yy-mm-dd" showIcon placeholder="Input a date" />
+                <DatePicker v-model="join_date" dateFormat="yy-mm-dd" showIcon :maxDate="today"
+                    placeholder="Input a date" />
                 <Message v-if="errors.join_date" class="error-messsage" severity="error" size="small" variant="simple">
                     {{ errors.join_date }}
                 </Message>
