@@ -89,7 +89,7 @@ const onSubmit = handleSubmit(async () => {
             </div>
 
 
-            <Button v-if="isSubmitting" type="submit" label="Login" class="mt-3" />
+            <Button :disabled="isSubmitting" type="submit" label="Login" class="mt-3" />
         </form>
     </section>
 </template>

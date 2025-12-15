@@ -54,6 +54,7 @@ const routes = [
     path: '/onboarding',
     component: WizardLayout,
     meta: { requiresAuth: true, isWizard: true },
+    // redirect: '/onboarding/step-1',
     children: [
       {
         path: 'step-1', component: Step1Personal, beforeEnter: (to, from, next) => {
@@ -114,6 +115,10 @@ router.beforeEach(async (to, from, next) => {
   }
 
   if (to.path === '/onboardings' && !auth.isAdmin) {
+    return next('/profile')
+  }
+
+  if (to.path === '/onboarding' && !auth.isAdmin) {
     return next('/profile')
   }
 
