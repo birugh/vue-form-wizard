@@ -12,6 +12,7 @@ import { useAuthStore } from '@/stores/auth.store'
 import OnboardingList from '@/views/onboarding/OnboardingList.vue'
 import ProfileLayout from '@/layouts/ProfileLayout.vue'
 import ProfilePage from '@/views/ProfilePage.vue'
+import NotFoundPage from '@/views/NotFoundPage.vue'
 
 
 
@@ -75,6 +76,11 @@ const routes = [
         path: 'preview', component: Step4Preview, meta: { requiresOnboardingId: true },
       },
     ],
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'not-found',
+    component: NotFoundPage,
   },
 ]
 
