@@ -43,9 +43,11 @@ const skeletonRows = Array.from({ length: 5 })
 
 <template>
     <section>
-        <h1>Onboarding Drafts</h1>
+        <div class="dashboard__title">
+            <h1>Onboarding Drafts</h1>
+            <router-link to="/onboarding/step-1"><Button label="Create Onboarding" size="small" /></router-link>
+        </div>
 
-        <!-- 🔄 LOADING STATE -->
         <DataTable v-if="isLoading" :value="skeletonRows" stripedRows tableStyle="min-width: 60rem">
             <Column header="Name">
                 <template #body>

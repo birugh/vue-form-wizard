@@ -65,33 +65,38 @@ defineExpose({
 </script>
 
 <template>
-    <section>
-        <h2>Step 1 - Personal Information</h2>
+    <h2 class="text-2xl font-medium mb-4">Personal Information</h2>
+    <div class="h-separator"></div>
 
-        <form class="flex justify-center flex-col gap-4">
-            <div class="flex flex-col gap-1">
-                <label>Name</label>
+    <form class="flex justify-center flex-col gap-4">
+        <div class="field-row">
+
+            <div class="flex flex-col gap-1 w-100">
+                <label class="label-field req">Name</label>
                 <InputText v-model="name" />
                 <Message v-if="errors.name" severity="error" size="small" variant="simple">{{ errors.name }}</Message>
             </div>
 
-            <div class="flex flex-col gap-1">
-                <label>Email</label>
+            <div class="flex flex-col gap-1 w-100">
+                <label class="label-field req">Email</label>
                 <InputText v-model="email" type="email" />
                 <Message v-if="errors.email" severity="error" size="small" variant="simple">{{ errors.email }}</Message>
             </div>
+        </div>
 
+        <div class="field-row">
             <div class="flex flex-col gap-1">
-                <label>Phone Number</label>
+                <label class="label-field req">Phone Number</label>
                 <InputText v-model="phone" />
                 <Message v-if="errors.phone" severity="error" size="small" variant="simple">{{ errors.phone }}</Message>
             </div>
 
             <div class="flex flex-col gap-1">
-                <label>Emergency Contact</label>
+                <label class="label-field req">Emergency Contact</label>
                 <InputText v-model="emergency_contact" />
-                <Message v-if="errors.emergency_contact" severity="error" size="small" variant="simple">{{ errors.emergency_contact }}</Message>
+                <Message v-if="errors.emergency_contact" severity="error" size="small" variant="simple">{{
+                    errors.emergency_contact }}</Message>
             </div>
-        </form>
-    </section>
+        </div>
+    </form>
 </template>

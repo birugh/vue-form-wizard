@@ -59,7 +59,7 @@
 /* ! Separator */
 
 .h-separator {
-  @apply w-full h-[2px] bg-gray-300 rounded-full my-4;
+  @apply w-full h-[2px] bg-gray-600 rounded-full my-4;
 }
 
 /* ! Button */
@@ -146,11 +146,11 @@
 }
 
 .field-row {
-  @apply flex flex-row justify-between gap-4;
+  @apply flex flex-row justify-start gap-6;
 }
 
 .label-field {
-  @apply font-medium text-lg text-gray-900;
+  @apply font-normal text-lg text-gray-200;
 }
 
 .label-field.req::after {
@@ -289,6 +289,18 @@ body.sidebar-collapsed .btn-sidebar-text {
 
 .dashboard__create {
   @apply flex flex-row items-center gap-2 mt-2;
+}
+
+.preview-form {
+  @apply flex flex-col gap-1;
+}
+
+.preview-form p {
+  @apply font-medium;
+}
+
+.preview-form span {
+  @apply font-normal;
 }
 
 /* TODO: End of components section */

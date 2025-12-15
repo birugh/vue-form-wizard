@@ -8,6 +8,7 @@ import { useOnboardingStore } from '@/stores/onboarding.store'
 import MultiSelect from 'primevue/multiselect'
 import Dropdown from 'primevue/dropdown'
 import FileUpload from 'primevue/fileupload'
+import { Message, Splitter, SplitterPanel } from 'primevue'
 
 // =======================
 // 1️⃣ Schema
@@ -139,42 +140,59 @@ defineExpose({
 
 <template>
     <section>
-        <h2>Step 3 - Access Rights & Evidence</h2>
 
-        <form class="p-fluid">
-            <fieldset>
-                <legend>System Access</legend>
+        <h2 class="text-2xl font-medium mb-4">Step 3 - Access Rights & Evidence</h2>
+        <div class="h-separator"></div>
 
-                <label>Communication Tools</label>
-                <MultiSelect v-model="communication_tools" :options="communicationOptions" display="chip"
-                    placeholder="Select tools" />
-                <small class="p-error">{{ errors.communication_tools }}</small>
+        <form class="flex justify-center flex-col gap-4">
+            <div class="flex justify-center flex-col gap-2 mb-2">
+                <h3 class="text-xl font-medium">System Access</h3>
+                <div class="field-row">
+                    <div class="flex flex-col gap-1 w-80">
+                        <label class="label-field req">Communication Tools</label>
+                        <MultiSelect v-model="communication_tools" :options="communicationOptions" display="chip"
+                            placeholder="Select tools" />
+                        <Message v-if="errors.communication_tools" class="error-messsage" severity="error" size="small"
+                            variant="simple">{{ errors.communication_tools }}</Message>
+                    </div>
+                    <div class="flex flex-col gap-1 w-80">
 
-                <label>Technical Tools</label>
-                <MultiSelect v-model="technical_tools" :options="technicalOptions" display="chip"
-                    placeholder="Select tools" />
-                <small class="p-error">{{ errors.technical_tools }}</small>
-            </fieldset>
+                        <label class="label-field req">Technical Tools</label>
+                        <MultiSelect v-model="technical_tools" :options="technicalOptions" display="chip"
+                            placeholder="Select tools" />
+                        <Message v-if="errors.technical_tools" class="error-messsage" severity="error" size="small"
+                            variant="simple">{{ errors.technical_tools }}</Message>
+                    </div>
+                </div>
+            </div>
 
-            <fieldset>
-                <legend>Facility Access</legend>
+            <div class="flex justify-center flex-col gap-2">
+                <h3 class="text-xl font-medium">Facility Access</h3>
+                <div class="field-row">
+                    <div class="flex flex-col gap-1 w-50">
+                        <label class="label-field req">Access Level</label>
+                        <Dropdown v-model="access_level" :options="accessLevelOptions" optionLabel="label"
+                            optionValue="value" placeholder="Select access level" />
+                        <Message v-if="errors.access_level" class="error-messsage" severity="error" size="small"
+                            variant="simple">{{ errors.access_level }}</Message>
+                    </div>
+                    <div class="flex flex-col gap-1 w-80">
 
-                <label>Access Level</label>
-                <Dropdown v-model="access_level" :options="accessLevelOptions" optionLabel="label" optionValue="value"
-                    placeholder="Select access level" />
-                <small class="p-error">{{ errors.access_level }}</small>
+                        <label class="label-field req">Specific Zones</label>
+                        <MultiSelect v-model="specific_zones" :options="zoneOptions" display="chip"
+                            placeholder="Select zones" />
+                        <Message v-if="errors.specific_zones" class="error-messsage" severity="error" size="small"
+                            variant="simple">{{ errors.specific_zones }}</Message>
+                    </div>
+                </div>
+            </div>
 
-                <label>Specific Zones</label>
-                <MultiSelect v-model="specific_zones" :options="zoneOptions" display="chip"
-                    placeholder="Select zones" />
-                <small class="p-error">{{ errors.specific_zones }}</small>
-            </fieldset>
-
-            <div>
-                <label>Upload Evidence</label>
+            <div class="flex justify-center flex-col gap-4">
+                <label class="label-field req">Upload Evidence</label>
                 <FileUpload mode="advanced" customUpload multiple accept="image/*,application/pdf"
                     :maxFileSize="5000000" @select="onFileSelect" @remove="onFileRemove" />
-                <small class="p-error">{{ errors.evidences }}</small>
+                <Message v-if="errors.evidences" class="error-messsage" severity="error" size="small" variant="simple">
+                    {{ errors.evidences }}</Message>
             </div>
         </form>
     </section>

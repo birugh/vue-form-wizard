@@ -21,20 +21,35 @@ const formattedDate = computed(() => {
 </script>
 
 <template>
-    <Panel header="Job Details">
-        <p><strong>Department:</strong> {{ data.department || '-' }}</p>
-        <p><strong>Job Title:</strong> {{ data.job_title || '-' }}</p>
+    <Panel header="Job Details" toggleable>
+        <div class="preview-form">
 
-        <p><strong>Join Date:</strong> {{ formattedDate }}</p>
+            <p>Department:
+                <span>
+                    {{ data.department || '-' }}
+                </span>
+            </p>
+            <p>Job Title:
+                <span>
+                    {{ data.job_title || '-' }}
+                </span>
+            </p>
 
-        <p>
-            <strong>Work Arrangement:</strong>
-            <Tag :value="data.work_arrangement || '-'" />
-        </p>
+            <p>Join Date:
+                <span>
+                    {{ formattedDate }}
+                </span>
+            </p>
 
-        <p>
-            <strong>Device Request:</strong>
-            <Tag :value="data.device_request || '-'" severity="info" />
-        </p>
+            <p>
+                Work Arrangement:
+                <Tag :value="data.work_arrangement || '-'" />
+            </p>
+
+            <p>
+                Device Request:
+                <Tag :value="data.device_request || '-'" severity="info" />
+            </p>
+        </div>
     </Panel>
 </template>

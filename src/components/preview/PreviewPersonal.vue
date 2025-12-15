@@ -10,13 +10,29 @@ defineProps({
 </script>
 
 <template>
-    <Panel header="Personal Information">
-        <p><strong>Name:</strong> {{ data.name || '-' }}</p>
-        <p><strong>Email:</strong> {{ data.email || '-' }}</p>
-        <p><strong>Phone:</strong> {{ data.phone || '-' }}</p>
-        <p>
-            <strong>Emergency Contact:</strong>
-            {{ data.emergency_contact || '-' }}
-        </p>
+    <Panel header="Personal Information" toggleable>
+        <div class="preview-form">
+            <p>Name:
+                <span>
+                    {{ data.name || '-' }}
+                </span>
+            </p>
+            <p>Email:
+                <span>
+                    {{ data.email || '-' }}
+                </span>
+            </p>
+            <p>Phone:
+                <span>
+                    {{ data.phone || '-' }}
+                </span>
+            </p>
+            <p>
+                Emergency Contact:
+                <span>
+                    {{ data.emergency_contact || '-' }}
+                </span>
+            </p>
+        </div>
     </Panel>
 </template>

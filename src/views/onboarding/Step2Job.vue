@@ -8,6 +8,8 @@ import { useOnboardingStore } from '@/stores/onboarding.store'
 import InputText from 'primevue/inputtext'
 import Select from 'primevue/select'
 import DatePicker from 'primevue/datepicker'
+import { Message } from 'primevue'
+
 
 // =======================
 // 1️⃣ Schema
@@ -93,41 +95,59 @@ defineExpose({
 
 <template>
     <section>
-        <h2>Step 2 - Job Details</h2>
+        <h2 class="text-2xl font-medium mb-4">Job Details</h2>
+        <div class="h-separator"></div>
 
-        <form class="p-fluid">
-            <div>
-                <label>Department</label>
-                <Select v-model="department" :options="departmentOptions" optionLabel="label" optionValue="value"
-                    placeholder="Select department" />
-                <small class="p-error">{{ errors.department }}</small>
+        <form class="flex justify-center flex-col gap-4">
+            <div class="field-row">
+
+                <div class="flex flex-col gap-1">
+                    <label class="label-field req">Department</label>
+                    <Select v-model="department" :options="departmentOptions" optionLabel="label" optionValue="value"
+                        placeholder="Select department" />
+                    <Message v-if="errors.department" class="error-messsage" severity="error" size="small"
+                        variant="simple">
+                        {{ errors.department }}
+                    </Message>
+                </div>
+
+                <div class="flex flex-col gap-1 w-100">
+                    <label class="label-field req">Job Title</label>
+                    <InputText v-model="job_title" />
+                    <Message v-if="errors.job_title" class="error-messsage" severity="error" size="small"
+                        variant="simple">
+                        {{ errors.job_title }}
+                    </Message>
+                </div>
             </div>
 
-            <div>
-                <label>Job Title</label>
-                <InputText v-model="job_title" />
-                <small class="p-error">{{ errors.job_title }}</small>
-            </div>
-
-            <div>
-                <label>Join Date</label>
+            <div class="flex flex-col gap-1">
+                <label class="label-field req">Join Date</label>
                 <DatePicker v-model="join_date" dateFormat="yy-mm-dd" showIcon />
-                <small class="p-error">{{ errors.join_date }}</small>
+                <Message v-if="errors.join_date" class="error-messsage" severity="error" size="small" variant="simple">
+                    {{ errors.join_date }}
+                </Message>
+            </div>
+            <div class="field-row">
+                <div class="flex flex-col gap-1 w-fit">
+                    <label class="label-field req">Work Arrangement</label>
+                    <Select v-model="work_arrangement" :options="workArrangementOptions" optionLabel="label"
+                        optionValue="value" placeholder="Select arrangement" />
+                    <Message v-if="errors.work_arrangement" class="error-messsage" severity="error" size="small"
+                        variant="simple">{{
+                            errors.work_arrangement }}</Message>
+                </div>
+
+                <div class="flex flex-col gap-1 w-fit">
+                    <label class="label-field req">Device Request</label>
+                    <Select v-model="device_request" :options="deviceOptions" optionLabel="label" optionValue="value"
+                        placeholder="Select device" />
+                    <Message v-if="errors.device_request" class="error-messsage" severity="error" size="small"
+                        variant="simple">{{ errors.device_request
+                        }}</Message>
+                </div>
             </div>
 
-            <div>
-                <label>Work Arrangement</label>
-                <Select v-model="work_arrangement" :options="workArrangementOptions" optionLabel="label"
-                    optionValue="value" placeholder="Select arrangement" />
-                <small class="p-error">{{ errors.work_arrangement }}</small>
-            </div>
-
-            <div>
-                <label>Device Request</label>
-                <Select v-model="device_request" :options="deviceOptions" optionLabel="label" optionValue="value"
-                    placeholder="Select device" />
-                <small class="p-error">{{ errors.device_request }}</small>
-            </div>
         </form>
     </section>
 </template>
