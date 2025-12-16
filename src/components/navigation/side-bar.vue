@@ -70,7 +70,7 @@ const logout = async () => {
                         <ul class="hidden overflow-hidden transition-all duration-300">
                             <li class="px-4">
                                 <Button text icon="pi pi-user" label="My Profile" class="flex w-full justify-start!"
-                                    @click="go('/onboarding/step-1')" />
+                                    @click="go('/profile')" />
                             </li>
                         </ul>
                     </li>

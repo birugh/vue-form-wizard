@@ -14,7 +14,10 @@ import {
   updateStep3,
 } from '@/api/onboarding.api'
 
+<<<<<<< HEAD
 // const isProcessing = ref(false)
+=======
+>>>>>>> fix-routing-from-old-commit
 const isProcessing = ref({
   next: false,
   draft: false,
@@ -27,6 +30,10 @@ export function useOnboardingWizard() {
   const store = useOnboardingStore()
   const toast = useToast()
 
+<<<<<<< HEAD
+=======
+  // const isProcessing = ref(false)
+>>>>>>> fix-routing-from-old-commit
   const stepRef = ref(null)
 
 
@@ -152,49 +159,6 @@ export function useOnboardingWizard() {
     }
   }
 
-  // const goNext = async () => {
-  //   if (isProcessing.value) return
-
-  //   try {
-  //     if (stepRef.value?.validateStep) {
-  //       const valid = await stepRef.value.validateStep()
-  //       if (!valid) return
-  //     }
-  //     isProcessing.value = true
-
-  //     const index = currentIndex.value
-  //     const nextStep = steps[index + 1]
-  //     const isLastStep = index === steps.length - 1
-
-
-  //     if (isLastStep && currentStep.value?.submit) {
-  //       const confirmed = await confirmFinalSubmit()
-  //       if (!confirmed) return
-  //     }
-
-  //     let submitPromise = null
-  //     if (currentStep.value?.submit) {
-  //       const payload = getStepPayload()
-  //       submitPromise = currentStep.value.submit(payload)
-  //     }
-
-  //     router.push(nextStep ? nextStep.path : '/onboardings')
-
-  //     if (submitPromise) {
-  //       submitPromise.catch(showError).finally(() => {
-  //         isProcessing.value = false
-  //       })
-  //     } else {
-  //       isProcessing.value = false
-  //     }
-
-  //   } catch (err) {
-  //     showError(err)
-  //     isProcessing.value = false
-  //   }
-  // }
-
-
   async function goBack() {
     const step = stepRef.value
 
@@ -279,7 +243,7 @@ export function useOnboardingWizard() {
 
 
   onBeforeRouteLeave(() => {
-    if (isProcessing.value) return false
+    if (isProcessing.value.draft || isProcessing.value.next) return false
   })
 
   return {
