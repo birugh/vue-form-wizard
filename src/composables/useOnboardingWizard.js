@@ -99,7 +99,7 @@ export function useOnboardingWizard() {
   const getStepPayload = () => {
     if (!stepRef.value) return null
 
-    if (stepRef.value.getPayload) {
+    if (stepRef.value?.getPayload) {
       return stepRef.value.getPayload()
     }
 
@@ -136,11 +136,13 @@ export function useOnboardingWizard() {
         const confirmed = await confirmFinalSubmit()
         if (!confirmed) return
       }
-
-      if (currentStep.value?.submit) {
-        const payload = getStepPayload()
-        await currentStep.value.submit(payload)
+      let payload = null
+      if (stepRef.value?.getDraftPayload) {
+        payload = stepRef.value.getDraftPayload()
+      } else if (currentStep.value?.submit) {
+        payload = getStepPayload()
       }
+      await currentStep.value.submit(payload)
 
       // const nextStep = steps[currentIndex.value + 1]
       router.push(nextStep ? nextStep.path : '/onboardings')
@@ -190,7 +192,15 @@ export function useOnboardingWizard() {
         if (!valid) return
       }
 
-      const payload = getStepPayload()
+      let payload = null
+
+      if (stepRef.value?.getDraftPayload) {
+        payload = stepRef.value.getDraftPayload()
+        console.log('asd');
+      } else {
+        payload = getStepPayload()
+      }
+
       if (currentStep.value?.submit && payload) {
         await currentStep.value.submit(payload)
       }
