@@ -14,10 +14,6 @@ import {
   updateStep3,
 } from '@/api/onboarding.api'
 
-<<<<<<< HEAD
-// const isProcessing = ref(false)
-=======
->>>>>>> fix-routing-from-old-commit
 const isProcessing = ref({
   next: false,
   draft: false,
@@ -30,10 +26,6 @@ export function useOnboardingWizard() {
   const store = useOnboardingStore()
   const toast = useToast()
 
-<<<<<<< HEAD
-=======
-  // const isProcessing = ref(false)
->>>>>>> fix-routing-from-old-commit
   const stepRef = ref(null)
 
 
