@@ -32,6 +32,10 @@ defineProps({
                 <span>
                     {{ data.emergency_contact || '-' }}
                 </span>
+
+
+
+                
             </p>
         </div>
     </Panel>

@@ -12,18 +12,18 @@ defineEmits(['toggle-sidebar'])
 const items = ref([])
 
 const goToProfile = () => {
-    router.push('/profile')
+  router.push('/profile')
 }
 </script>
 
 <template>
-    <Menubar :model="items">
-        <template #start>
-            <Button icon="pi pi-bars" text @click="$emit('toggle-sidebar')" />
-        </template>
+  <Menubar :model="items" class="fixed top-0 right-0 z-50 w-full">
+    <template #start>
+      <Button icon="pi pi-bars" text @click="$emit('toggle-sidebar')" />
+    </template>
 
-        <template #end>
-            <Avatar icon="pi pi-user" shape="circle" class="cursor-pointer" @click="goToProfile" />
-        </template>
-    </Menubar>
+    <template #end>
+      <Avatar icon="pi pi-user" shape="circle" class="cursor-pointer" @click="goToProfile" />
+    </template>
+  </Menubar>
 </template>

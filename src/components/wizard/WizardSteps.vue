@@ -3,16 +3,16 @@ import Stepper from 'primevue/stepper'
 import StepList from 'primevue/steplist'
 import Step from 'primevue/step'
 
-// const props = 
+// const props =
 defineProps({
-    steps: {
-        type: Array,
-        required: true,
-    },
-    modelValue: {
-        type: String,
-        required: true,
-    },
+  steps: {
+    type: Array,
+    required: true,
+  },
+  modelValue: {
+    type: String,
+    required: true,
+  },
 })
 
 // const emit = defineEmits(['update:modelValue', 'request-step-change'])
@@ -25,13 +25,13 @@ defineProps({
 </script>
 
 <template>
-    <Stepper :value="modelValue">
-        <!-- <Stepper :value="modelValue" @update:value="onUpdateValue"> -->
-        <StepList>
-            <Step v-for="step in steps" :key="step.step" :value="String(step.step)" disabled>
-                <!-- <Step v-for="step in steps" :key="step.step" :value="String(step.step)" :disabled="!step.enabled"> -->
-                {{ step.label }}
-            </Step>
-        </StepList>
-    </Stepper>
+  <Stepper :value="modelValue">
+    <!-- <Stepper :value="modelValue" @update:value="onUpdateValue"> -->
+    <StepList>
+      <Step v-for="step in steps" :key="step.step" :value="String(step.step)" disabled>
+        <!-- <Step v-for="step in steps" :key="step.step" :value="String(step.step)" :disabled="!step.enabled"> -->
+        {{ step.label }}
+      </Step>
+    </StepList>
+  </Stepper>
 </template>

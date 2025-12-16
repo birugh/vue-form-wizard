@@ -35,21 +35,20 @@ const activeStep = computed(() => {
   return current ? String(current.step) : '1'
 })
 
-const handleStepChange = async (targetStep) => {
-  const currentStep = stepRef.value
+// const handleStepChange = async (targetStep) => {
+//   const currentStep = stepRef.value
 
-  if (currentStep?.hasValue?.()) {
-    const confirmed = await confirmUnsavedChanges()
-    if (!confirmed) return
-  }
+//   if (currentStep?.hasValue?.()) {
+//     const confirmed = await confirmUnsavedChanges()
+//     if (!confirmed) return
+//   }
 
-  await router.push(targetStep.path)
-}
+//   await router.push(targetStep.path)
+// }
 
 const handleGoBack = () => {
 
   if (isSubmitted.value) {
-
     router.push('/onboardings');
   } else {
     goBack()
@@ -71,7 +70,8 @@ const handleGoBack = () => {
           severity="secondary" />
       </div>
 
-      <WizardSteps :steps="resolvedSteps" :modelValue="activeStep" @request-step-change="handleStepChange" />
+      <!-- <WizardSteps :steps="resolvedSteps" :modelValue="activeStep" @request-step-change="handleStepChange" /> -->
+      <WizardSteps :steps="resolvedSteps" :modelValue="activeStep" />
 
       <main class="my-12">
         <router-view v-slot="{ Component }">
@@ -82,12 +82,14 @@ const handleGoBack = () => {
       <footer>
         <div class="flex justify-between items-center">
 
-          <Button @click="saveDraft" :disabled="isProcessing || isSubmitted" label="Save as Draft" size="small" />
+          <Button @click="saveDraft" :disabled="isProcessing.draft || isProcessing.next || isSubmitted"
+            label="Save as Draft" size="small" :loading="isProcessing.draft" />
           <ButtonGroup>
-            <Button @click="handleGoBack" :disabled="isProcessing || currentIndex === 0 || isSubmitted" label="Previous"
-              size="small" />
-            <Button @click="goNext" :disabled="isProcessing || isSubmitted"
-              :label="currentIndex < 3 ? 'Next' : 'Submit'" size="small" />
+            <Button @click="handleGoBack"
+              :disabled="isProcessing.draft || isProcessing.next || currentIndex === 0 || isSubmitted" label="Previous"
+              size="small" severity="secondary" outlined raised />
+            <Button @click="goNext" :disabled="isProcessing.draft || isProcessing.next || isSubmitted"
+              :loading="isProcessing.next" :label="currentIndex < 3 ? 'Next' : 'Submit'" size="small" />
           </ButtonGroup>
         </div>
       </footer>

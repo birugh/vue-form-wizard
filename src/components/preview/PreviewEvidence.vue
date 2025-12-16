@@ -4,7 +4,7 @@ import DataView from 'primevue/dataview'
 import Dialog from 'primevue/dialog'
 import { ref } from 'vue'
 
-// const props = 
+// const props =
 defineProps({
     files: {
         type: Array,
@@ -41,7 +41,6 @@ const openPreview = (file) => {
                     <li v-for="(file, i) in items" :key="i"
                         class="p-2 hover:bg-gray-800 rounded transition cursor-pointer" @click="openPreview(file)">
                         <div class="flex flex-wrap p-2 items-center gap-4">
-                            <!-- Thumbnail / Icon -->
                             <img v-if="isImage(file.mime)" class="w-16 h-16 object-cover shrink-0 rounded"
                                 :src="fileUrl(file.path)" :alt="file.original_name" />
 
@@ -50,7 +49,6 @@ const openPreview = (file) => {
                                 📄
                             </div>
 
-                            <!-- File Info -->
                             <div class="flex-1 flex flex-col gap-1">
                                 <span class="font-bold text-sm">
                                     {{ file.original_name }}
@@ -62,7 +60,6 @@ const openPreview = (file) => {
                                 </div>
                             </div>
 
-                            <!-- File Size -->
                             <span class="font-bold ml-8 text-sm">
                                 {{ formatSize(file.size) }}
                             </span>
@@ -72,7 +69,6 @@ const openPreview = (file) => {
             </template>
         </DataView>
 
-        <!-- PREVIEW DIALOG -->
         <Dialog v-model:visible="previewFile" modal header="Preview File" :style="{ width: '50vw' }" v-if="previewFile">
             <img v-if="isImage(previewFile.mime)" :src="fileUrl(previewFile.path)" class="w-full rounded" />
 
