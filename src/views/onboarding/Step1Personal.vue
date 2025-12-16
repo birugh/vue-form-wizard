@@ -20,40 +20,30 @@ const schema = yup.object({
   phone: yup
     .string()
     .required('Phone number is required')
-    .matches(/^08[0-9]{8,11}$/, 'Invalid phone number'),
+    .matches(/^08[0-9]{8,15}$/, 'Invalid phone number'),
 
   emergency_contacts: yup
     .array()
     .of(
       yup
         .string()
-        .matches(/^08[0-9]{8,11}$/, 'Invalid phone number')
+        .required('Emergency contact is required')
+        .matches(/^08[0-9]{8,15}$/, 'Invalid phone number')
     )
+    .min(1, 'At least 1 emergency contact is required')
     .test(
-      'at-least-one-filled',
-      'At least 1 emergency contact is required',
-      (value = []) => value.some(v => v && v.trim() !== '')
-    )
-    .test(
-      'no-empty',
-      'Emergency contact is required',
-      (value = []) => value.every(v => v && v.trim() !== '')
-    )
-    .test(
-      'unique-emergency',
+      'unique',
       'Emergency contacts must be unique',
-      (value = []) => {
-        const filled = value.filter(v => v && v.trim() !== '')
-        return new Set(filled).size === filled.length
+      value => {
+        if (!value) return true
+        return new Set(value).size === value.length
       }
     )
     .test(
       'not-same-as-phone',
       'Emergency contact cannot be the same as phone number',
       function (value = []) {
-        const phone = this.parent.phone
-        if (!phone) return true
-        return !value.includes(phone)
+        return !value.includes(this.parent.phone)
       }
     ),
 })
@@ -163,7 +153,7 @@ defineExpose({
     <div class="field-row">
       <div class="flex flex-col gap-1 w-100">
         <label class="label-field req">Name</label>
-        <InputText v-model="name" />
+        <InputText v-model="name" placeholder="e.g. Biru Kheza Maharley" />
         <Message v-if="errors.name" severity="error" size="small" variant="simple">
           {{ errors.name }}
         </Message>
@@ -171,7 +161,7 @@ defineExpose({
 
       <div class="flex flex-col gap-1 w-100">
         <label class="label-field req">Email</label>
-        <InputText v-model="email" type="email" />
+        <InputText v-model="email" type="email" placeholder="e.g. example@gmail.com" />
         <Message v-if="errors.email" severity="error" size="small" variant="simple">
           {{ errors.email }}
         </Message>
@@ -180,7 +170,7 @@ defineExpose({
 
     <div class="flex flex-col gap-1">
       <label class="label-field req">Phone Number</label>
-      <InputText v-model="phone" />
+      <InputText v-model="phone" placeholder="08XXXXXXXXXX" />
       <Message v-if="errors.phone" severity="error" size="small" variant="simple">
         {{ errors.phone }}
       </Message>

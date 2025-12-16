@@ -9,6 +9,8 @@ import Select from 'primevue/select'
 import FileUpload from 'primevue/fileupload'
 import { Message } from 'primevue'
 import PreviewEvidence from '@/components/preview/PreviewEvidence.vue'
+import { useMasterStore } from '@/stores/master.store'
+const masterStore = useMasterStore()
 
 const schema = yup.object({
   communication_tools: yup
@@ -28,7 +30,8 @@ const schema = yup.object({
   specific_zones: yup
     .array()
     .of(yup.string())
-    .min(1, 'Please select at least one zone'),
+    .min(1, 'Please select at least one specific zone'),
+
 
   evidences: yup
     .array()
@@ -53,10 +56,9 @@ const { value: evidences } = useField('evidences', undefined, { initialValue: []
 
 
 const store = useOnboardingStore()
-console.log(store.onboarding.access_rights.evidences[0].path);
 
 
-const zoneOptions = ['Office', 'Server Room', 'Warehouse', 'Data Center', 'Meeting Room', 'Production Area']
+// const zoneOptions = ['Office', 'Server Room', 'Warehouse', 'Data Center', 'Meeting Room', 'Production Area']
 const communicationOptions = ['Slack', 'Email', 'Microsoft Teams', 'Zoom', 'WhatsApp']
 const technicalOptions = ['GitHub', 'GitLab', 'Bitbucket', 'Postman', 'Jira', 'Docker', 'Steam']
 const accessLevelOptions = [
@@ -80,6 +82,7 @@ const onFileRemove = (event) => {
 }
 
 onMounted(() => {
+  masterStore.fetchSpecificZones()
   if (!store.onboarding?.access_rights) return
   setValues(store.onboarding.access_rights)
 })
@@ -165,7 +168,8 @@ defineExpose({
           <div class="flex flex-col gap-1 w-80">
 
             <label class="label-field req">Specific Zones</label>
-            <MultiSelect v-model="specific_zones" :options="zoneOptions" display="chip" placeholder="Select zones" />
+            <MultiSelect v-model="specific_zones" :options="masterStore.specificZones" display="chip" optionLabel="name"
+              optionValue="name" placeholder="Select zones" :disabled="masterStore.loading" />
             <Message v-if="errors.specific_zones" class="error-messsage" severity="error" size="small" variant="simple">
               {{ errors.specific_zones }}</Message>
           </div>

@@ -1,11 +1,15 @@
 <script setup>
-import { confirmUnsavedChanges } from '@/utils/confirmUnsaved';
+// import { confirmUnsavedChanges } from '@/utils/confirmUnsaved';
 import WizardSteps from './WizardSteps.vue'
 import { useOnboardingWizard } from '@/composables/useOnboardingWizard'
 import { ref } from 'vue'
 import NavigationBar from '@/components/navigation/navigation-bar.vue';
 import Sidebar from '@/components/navigation/side-bar.vue';
 import { useOnboardingStore } from '@/stores/onboarding.store'
+// import { onMounted } from 'vue'
+// import { useMasterStore } from '@/stores/master.store'
+
+// const masterStore = useMasterStore()
 
 const store = useOnboardingStore()
 
@@ -54,7 +58,9 @@ const handleGoBack = () => {
     goBack()
   }
 }
-
+// onMounted(() => {
+//   masterStore.fetchAll
+// });
 </script>
 
 <template>
