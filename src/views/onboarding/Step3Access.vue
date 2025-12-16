@@ -8,6 +8,7 @@ import MultiSelect from 'primevue/multiselect'
 import Select from 'primevue/select'
 import FileUpload from 'primevue/fileupload'
 import { Message } from 'primevue'
+import PreviewEvidence from '@/components/preview/PreviewEvidence.vue'
 
 const schema = yup.object({
   communication_tools: yup
@@ -49,10 +50,10 @@ const { value: technical_tools } = useField('technical_tools', undefined, { init
 const { value: access_level } = useField('access_level')
 const { value: specific_zones } = useField('specific_zones', undefined, { initialValue: [] })
 const { value: evidences } = useField('evidences', undefined, { initialValue: [] })
-console.log(evidences.value);
 
 
 const store = useOnboardingStore()
+console.log(store.onboarding.access_rights.evidences[0].path);
 
 
 const zoneOptions = ['Office', 'Server Room', 'Warehouse', 'Data Center', 'Meeting Room', 'Production Area']
@@ -172,11 +173,17 @@ defineExpose({
       </div>
 
       <div class="flex justify-center flex-col gap-4">
-        <label class="label-field req">Upload Evidence</label>
+        <div>
+          <label class="label-field req">Upload Evidence</label>
+          <p class="mt-2"></p>
+          <Message class="error-messsage" severity="warn" size="small" variant="simple">If you upload a new file, all
+            previously uploaded evidence will be replaced.</Message>
+        </div>
         <FileUpload mode="advanced" customUpload multiple accept="image/*,application/pdf" :maxFileSize="5000000"
           @select="onFileSelect" @remove="onFileRemove" />
         <Message v-if="errors.evidences" class="error-messsage" severity="error" size="small" variant="simple">
           {{ errors.evidences }}</Message>
+        <PreviewEvidence :files="store.onboarding.access_rights?.evidences || []" />
       </div>
     </form>
   </section>

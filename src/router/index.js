@@ -110,9 +110,9 @@ router.beforeEach(async (to, from, next) => {
     }
   }
 
-  if (from.path.startsWith('/onboarding')) {
-    onboarding.refreshOnboarding()
-  }
+  // if (from.path.startsWith('/onboarding')) {
+  //   onboarding.refreshOnboarding()
+  // }
 
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
     return next('/login')
