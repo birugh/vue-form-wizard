@@ -120,11 +120,7 @@ router.beforeEach(async (to, from, next) => {
       : next('/profile')
   }
 
-  if (to.path === '/onboardings' && !auth.isAdmin) {
-    return next('/profile')
-  }
-
-  if (to.path === '/onboarding' && !auth.isAdmin) {
+  if ((to.path === '/onboardings' || to.path === '/onboarding') && !auth.isAdmin) {
     return next('/profile')
   }
 
