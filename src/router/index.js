@@ -110,6 +110,10 @@ router.beforeEach(async (to, from, next) => {
     }
   }
 
+  if (from.path.startsWith('/onboarding')) {
+    onboarding.refreshOnboarding()
+  }
+
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
     return next('/login')
   }
@@ -120,13 +124,13 @@ router.beforeEach(async (to, from, next) => {
       : next('/profile')
   }
 
-  if (to.path === '/onboardings' && !auth.isAdmin) {
+  if ((to.path === '/onboardings' || to.path === '/onboarding') && !auth.isAdmin) {
     return next('/profile')
   }
 
-  if (to.path === '/onboarding' && !auth.isAdmin) {
-    return next('/profile')
-  }
+  // if (to.path === '/onboarding' && !auth.isAdmin) {
+  //   return next('/profile')
+  // }
 
   if (to.meta.isWizard) {
     if (!onboarding.onboarding && to.path !== '/onboarding/step-1') {
